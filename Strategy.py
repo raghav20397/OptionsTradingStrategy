@@ -10,6 +10,7 @@ import json
 from scipy import stats
 import csv
 from tqdm import tqdm
+
 class Contract:
     vol = 1
     def __init__(self, price, vol, imp_v, delta, theta, vega, gamma, rho, time):
@@ -221,7 +222,7 @@ def plotForParameter(parameter, actualValues, expectedValues, averageValues, tim
         Av = [av.rho for av in averageValues]
     
     #change path here
-    location = f"X:\\NXBLOCK\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\{stry}\\{type1}_{estimation_type}\\"
+    location = f"X:\\NXBLOCK\\OptionsTradingStrateg\\yReports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\{stry}\\{type1}_{estimation_type}\\"
     # print(location)
     j=0
     try:
@@ -293,7 +294,7 @@ def plotForParameterError(parameter, actualValues, expectedValues, averageValues
         
     #change path here
     # location = f"X:\\NXBLOCK\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\{str}_{estimation_type}_{type}"
-    location = f"X:\\NXBLOCK\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\{stry}\\{type1}_{estimation_type}\\"
+    location = f"X:\\NXBLOCK\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\{stry}\\{type1}_{estimation_type}\\"
     j=0
     try:    
         if(os.path.exists(location)):
@@ -440,8 +441,8 @@ def plotPremiumActual(exptectedPremiums, actualValues,timeList, targetStrike, wi
     type1 = str(type1)
     stry="actual"
     parameter="Premium"
-    # location = f"X:\\NXBLOCK\\Reports\\{targetStrike}_{windowSize}_{timeGap}_{year}_{month}_{date}_{str}\\"
-    location = f"X:\\NXBLOCK\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\{stry}\\{type1}_{estimation_type}\\"
+    # location = f"X:\\NXBLOCK\\OptionsTradingStrategy\\Reports\\{targetStrike}_{windowSize}_{timeGap}_{year}_{month}_{date}_{str}\\"
+    location = f"X:\\NXBLOCK\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\{stry}\\{type1}_{estimation_type}\\"
     j=0
     try:
         if(os.path.exists(location)):
@@ -475,7 +476,7 @@ def plotPremiumError(exptectedPremiums, actualValues, timeList, targetStrike, wi
     stry="error"
     parameter="Premium"
     #calculating the percentage change from actual and expected value at each second 
-    location = f"X:\\NXBLOCK\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\{stry}\\{type1}_{estimation_type}\\"
+    location = f"X:\\NXBLOCK\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\{stry}\\{type1}_{estimation_type}\\"
     j=0
     try:
         if(os.path.exists(location)):
@@ -556,7 +557,7 @@ def ProfitorLossforaDay(expectedPremiums, actualSpots, expectedSpots, actualPrem
     # expectedPremiumsDay = e
     timeList, lenBefore, lenAfter = getTimeList(year, month, date, hourTo, minuteTo, secondTo, hourFrom, minuteFrom , secondFrom, windowSize)
 
-    location = f"X:\\NXBLOCK\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\Report_{greek_type}_{estimation_type}.csv"
+    location = f"X:\\NXBLOCK\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\Report_{greek_type}_{estimation_type}.csv"
 
     time_iter = lenBefore + timeGap
     end_iter = lenAfter
@@ -806,7 +807,8 @@ def computeGreeks(path, fileName, spotData, windowSize, timeGap, targetStrike, o
         print("PNL: ", pnl)
         strikePnl = [targetStrike, pnl]
 
-        location1 = f"X:\\NXBLOCK\\Reports\\{year}_{month}_{date}\\{greek_use}_{estimation_type}_strikeReports.txt "
+        location1 = f"X:\\NXBLOCK\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{greek_use}_{estimation_type}_strikeReports.txt "
+
         # with open(location1  , "a") as f:
         file = open(location1, "a")
         file.write(str(strikePnl[0]) + "---->" + str(strikePnl[1]) + "\n" )
@@ -825,7 +827,7 @@ if __name__ == "__main__":
     spotData = load_json(spotPath)
     print("Spot JSON loaded ")
 
-    #change path to save graphs
+    # change path to save graphs and csv
     # --------------------------------------------------------------
     # windowSize = int(input("Size of window: "))
     # timeGap = int(input("Gap of time: "))
@@ -852,5 +854,4 @@ if __name__ == "__main__":
             # targetStrike = 28700
             optionType = "PE"
             for targetStrike in tqdm([26500, 28000, 28500, 28700, 29000, 29300, 29500, 29700]):
-
                 computeGreeks(path, fileName, spotData, prev_windowSize, timeGap, targetStrike, optionType, date=1, month=12, year=2020, hourFrom=9, minuteFrom=15, secondFrom=0, hourTo=15, minuteTo=30, secondTo=0, estimation_type=estimation_type_i, greek_use=greek_use_i)
