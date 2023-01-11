@@ -222,7 +222,7 @@ def plotForParameter(parameter, actualValues, expectedValues, averageValues, tim
         Av = [av.rho for av in averageValues]
     
     #change path here
-    location = f"X:\\NXBLOCK\\OptionsTradingStrateg\\yReports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\{stry}\\{type1}_{estimation_type}\\"
+    location = f"D:\\Desktop\\College Documents\\ProjectExtramarks2\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\{stry}\\{type1}_{estimation_type}\\"
     # print(location)
     j=0
     try:
@@ -294,7 +294,7 @@ def plotForParameterError(parameter, actualValues, expectedValues, averageValues
         
     #change path here
     # location = f"X:\\NXBLOCK\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\{str}_{estimation_type}_{type}"
-    location = f"X:\\NXBLOCK\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\{stry}\\{type1}_{estimation_type}\\"
+    location = f"D:\\Desktop\\College Documents\\ProjectExtramarks2\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\{stry}\\{type1}_{estimation_type}\\"
     j=0
     try:    
         if(os.path.exists(location)):
@@ -442,7 +442,7 @@ def plotPremiumActual(exptectedPremiums, actualValues,timeList, targetStrike, wi
     stry="actual"
     parameter="Premium"
     # location = f"X:\\NXBLOCK\\OptionsTradingStrategy\\Reports\\{targetStrike}_{windowSize}_{timeGap}_{year}_{month}_{date}_{str}\\"
-    location = f"X:\\NXBLOCK\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\{stry}\\{type1}_{estimation_type}\\"
+    location = f"D:\\Desktop\\College Documents\\ProjectExtramarks2\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\{stry}\\{type1}_{estimation_type}"
     j=0
     try:
         if(os.path.exists(location)):
@@ -471,12 +471,52 @@ def plotPremiumActual(exptectedPremiums, actualValues,timeList, targetStrike, wi
     pyplot.savefig(location + f"{parameter} ComparisionChart", bbox_inches="tight")
     pyplot.close()
 
+
+# def plotValFit(ValforWindowSize,WindowSize,TimeGap,ActualValafterTimeGap,year,month,date,targetStrike,time):
+
+#     endstr = "plotsforCheckingFit"
+#     location = f"D:\\Desktop\\College Documents\\ProjectExtramarks2\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{WindowSize}_{TimeGap}\\{endstr}"
+
+#     X_Vals1 = np.arange(0,20)
+#     X_Vals2 = np.arange(0,25)
+
+#     Y_Vals1 = np.array(ValforWindowSize)
+#     m, c, r, p, se = stats.linregress(X_Vals1,Y_Vals1)
+
+#     pyplot.xlim(0,30)
+#     pyplot.ylim(-1000,1000)
+
+#     pyplot.plot(X_Vals1,Y_Vals1,color="red")
+#     pyplot.plot([24],ActualValafterTimeGap,color="red")
+#     pyplot.plot(X_Vals2,m*X_Vals2+ValforWindowSize[0],color="blue",linestyle="dashed")
+#     pyplot.plot([24],m*TimeGap+ValforWindowSize[len(ValforWindowSize)-1],color="green")
+
+#     pyplot.legend()
+
+#     nameofPlot = str(year) + "_" + str(month) + "_" + str(date) + "_" + str(time) + ".jpg"
+#     if not os.path.exists(location):
+#         os.makedirs(location)
+    
+#     pyplot.savefig(nameofPlot)
+#     pyplot.close()
+    
+
+
+
+
+    
+
+
+    
+    
+
+
 def plotPremiumError(exptectedPremiums, actualValues, timeList, targetStrike, windowSize,timeGap, year, month, date, lenBefore, estimation_type,type1):
     type1 = str(type1)
     stry="error"
     parameter="Premium"
     #calculating the percentage change from actual and expected value at each second 
-    location = f"X:\\NXBLOCK\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\{stry}\\{type1}_{estimation_type}\\"
+    location = f"D:\\Desktop\\College Documents\\ProjectExtramarks2\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\{stry}\\{type1}_{estimation_type}"
     j=0
     try:
         if(os.path.exists(location)):
@@ -535,7 +575,7 @@ def computePremiumExpected(actualValues, expectedValues, expectedSpotChanges, wi
             #   MX  +  C 
             if(type=="predict"):
             # delta for t+5
-                expectedPremiums.append(prempair(expectedSpotChanges[i].time, actualValues[i-timeGap].price +  expectedValues[i].delta*expectedSpotChanges[i].spot))
+                expectedPremiums.append(prempair(expectedSpotChanges[i].time, actualValues[i-timeGap].price +  expectedValues[i].delta*(expectedSpotChanges[i].spot)))
 
             if(type=="now"):
             # delta for t
@@ -555,9 +595,13 @@ def ProfitorLossforaDay(expectedPremiums, actualSpots, expectedSpots, actualPrem
     # e = [obj.premium for obj in expectedPremiums]
 
     # expectedPremiumsDay = e
-    timeList, lenBefore, lenAfter = getTimeList(year, month, date, hourTo, minuteTo, secondTo, hourFrom, minuteFrom , secondFrom, windowSize)
+    # print("Whether length of expected and actual spots is same : ",len(expectedSpots) == len(actualSpots))
+    # for i in range(timeGap,len(expectedSpots)):
+    #     expectedSpots[i].price += actualSpots[i-timeGap].spot
 
-    location = f"X:\\NXBLOCK\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\Report_{greek_type}_{estimation_type}.csv"
+    timeList, lenBefore, lenAfter = getTimeList(year, month, date, hourTo, minuteTo, secondTo, hourFrom, minuteFrom , secondFrom, windowSize)
+    
+    location = f"D:\\Desktop\\College Documents\\ProjectExtramarks2\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\Report_{greek_type}_{estimation_type}.csv"
 
     time_iter = lenBefore + timeGap
     end_iter = lenAfter
@@ -670,17 +714,28 @@ def computeGreeks(path, fileName, spotData, windowSize, timeGap, targetStrike, o
                         secondGamma = 0
                         secondRho = 0
                         secondLen = len(secondBuffer)
-
+                        # Weighted price variables
+                        prices_buffer = []
+                        vol_buffer = []
                         for secondContracts in secondBuffer:
-                            secondPrice += secondContracts.price/secondLen
-                            secondVol += secondContracts.vol/secondLen
+                            # secondPrice += secondContracts.price/secondLen
+                            # secondVol += secondContracts.vol/secondLen
+                            prices_buffer.append(secondContracts.price)
+                            vol_buffer.append(secondContracts.vol)
                             secondImp_v += secondContracts.imp_v/secondLen
                             secondDelta += secondContracts.delta/secondLen
                             secondTheta += secondContracts.theta/secondLen
                             secondVega += secondContracts.vega/secondLen
                             secondGamma += secondContracts.gamma/secondLen
                             secondRho += secondContracts.rho/secondLen
+                        
+                        for vol in vol_buffer:
+                            secondVol+=vol
 
+                        for i in range(len(prices_buffer)):
+                            secondPrice+=(prices_buffer[i]*vol_buffer[i])/secondVol
+                        
+                        secondVol/=len(vol_buffer)
                         # this is the equivalent average-values contract for the second
                         secondEquivalent = Contract(secondPrice, secondVol, secondImp_v, secondDelta, secondTheta, secondVega, secondGamma, secondRho, trade_time);
                         # this becomes the actual value for the second (assumption)
@@ -807,7 +862,7 @@ def computeGreeks(path, fileName, spotData, windowSize, timeGap, targetStrike, o
         print("PNL: ", pnl)
         strikePnl = [targetStrike, pnl]
 
-        location1 = f"X:\\NXBLOCK\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{greek_use}_{estimation_type}_strikeReports.txt "
+        location1 = f"D:\\Desktop\\College Documents\\ProjectExtramarks2\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{greek_use}_{estimation_type}_strikeReports.txt "
 
         # with open(location1  , "a") as f:
         file = open(location1, "a")
@@ -818,10 +873,10 @@ def computeGreeks(path, fileName, spotData, windowSize, timeGap, targetStrike, o
 #expected premium not calculated from greeks
 
 if __name__ == "__main__":
-    path = "X:\\NXBLOCK"
+    path = "D:\\Desktop\\College Documents\\ProjectExtramarks2\\OptionsTradingStrategy"
     fileName = "1.pkl"
 
-    spotPath = "X:\\NXBLOCK\\BANKNIFTY_spot_seconds_till_2022_10_12.json"
+    spotPath = "D:\\Desktop\\College Documents\\ProjectExtramarks2\\OptionsTradingStrategy\\BANKNIFTY_spot_seconds_till_2022_10_12.json"
 
     print("Spot JSON loading..")
     spotData = load_json(spotPath)
@@ -847,11 +902,11 @@ if __name__ == "__main__":
     # --------------------------------------------------------------
     
     for greek_use_i in ["predict", "now"]:
-        for estimation_type_i in["regress", "simple"]:
+        for estimation_type_i in["regress"]:
             
-            prev_windowSize = 20
-            timeGap = 3
+            prev_windowSize = 59
+            timeGap = 5
             # targetStrike = 28700
-            optionType = "PE"
-            for targetStrike in tqdm([26500, 28000, 28500, 28700, 29000, 29300, 29500, 29700]):
+            optionType = "CE"
+            for targetStrike in tqdm([29500]):
                 computeGreeks(path, fileName, spotData, prev_windowSize, timeGap, targetStrike, optionType, date=1, month=12, year=2020, hourFrom=9, minuteFrom=15, secondFrom=0, hourTo=15, minuteTo=30, secondTo=0, estimation_type=estimation_type_i, greek_use=greek_use_i)

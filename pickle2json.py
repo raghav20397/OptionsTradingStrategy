@@ -1,5 +1,5 @@
 import pickle
-from pickle_helper import *
+# from pickle_helper import *
 import json
 
 def save_as_json(filename,file):
@@ -7,6 +7,10 @@ def save_as_json(filename,file):
         json.dump(file, outfile)
     return
 
+def load_pkl(path):
+    with open(path, "rb") as pkl_file:
+        data = pickle.load(pkl_file)
+        return data
 def recur(d):
     if isinstance(d, dict):
         di = {}
@@ -22,6 +26,6 @@ def recur(d):
         return(str(d))
 
 file_accr = "1"
-data = loadp(file_accr+".pkl")
+data = load_pkl(file_accr+".pkl")
 data_str = recur(data)
 save_as_json(file_accr+".json",data_str)
