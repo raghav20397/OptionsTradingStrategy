@@ -476,7 +476,6 @@ def plotPremiumActual(exptectedPremiums, actualValues,timeList, targetStrike, wi
     pyplot.savefig(location + f"{parameter} ComparisionChart", bbox_inches="tight")
     pyplot.close()
 
-
 def plotValFit(ValforWindowSize,windowSize,TimeGap,ActualValafterTimeGap,year,month,date,targetStrike,time):
 
     endstr = "plotsforCheckingFit"
@@ -506,9 +505,6 @@ def plotValFit(ValforWindowSize,windowSize,TimeGap,ActualValafterTimeGap,year,mo
     pyplot.savefig(nameofPlot)
     pyplot.close()
     
-
-
-
 def plotPremiumError(exptectedPremiums, actualValues, timeList, targetStrike, windowSize,timeGap, year, month, date, lenBefore, estimation_type,type1):
     type1 = str(type1)
     stry="error"
@@ -588,17 +584,6 @@ def computePremiumExpected(actualValues, expectedValues, expectedSpotChanges, wi
 
 def ProfitorLossforaDay(expectedPremiums, actualSpots, expectedSpots, actualPremiums, expectedValues,timeGap, windowSize, brockerage, targetStrike, date, month, year, hourFrom, minuteFrom, secondFrom, hourTo, minuteTo, secondTo, greek_type, estimation_type):
 
-    # print(expectedPremiums[0].time, actualPremiums[0].time)
-    
-    # actualPremiums = [contract.price for contract in actualPremiums]
-
-    # e = [obj.premium for obj in expectedPremiums]
-
-    # expectedPremiumsDay = e
-    # print("Whether length of expected and actual spots is same : ",len(expectedSpots) == len(actualSpots))
-    # for i in range(timeGap,len(expectedSpots)):
-    #     expectedSpots[i].price += actualSpots[i-timeGap].spot
-
     timeList, lenBefore, lenAfter = getTimeList(year, month, date, hourTo, minuteTo, secondTo, hourFrom, minuteFrom , secondFrom, windowSize)
     
     # location = f"D:\\Desktop\\College Documents\\ProjectExtramarks2\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\Report_{greek_type}_{estimation_type}.csv"
@@ -609,30 +594,35 @@ def ProfitorLossforaDay(expectedPremiums, actualSpots, expectedSpots, actualPrem
     pnl = 0
     rows= []
     rows.append(["time t","actual price at t",f"expected price at t + {timeGap}",f"actual price at t + {timeGap}","delta at t",f"expected delta at t+{timeGap}", f"actual delta at t + {timeGap}","spot at t",f"expected spot at t+{timeGap}",f"actual spot at t + {timeGap}",f"time t + {timeGap}", "trade pnl"])
-
+    
+    p,q,r,s = 0,0,0,0
     while time_iter <= lenBefore + len(timeList)-timeGap:
         indiv_pnl = 0
-        if( ((expectedPremiums[time_iter+timeGap].premium - actualPremiums[time_iter].price) / actualPremiums[time_iter].price) * 100  > 100*brockerage):
+        if( (abs(expectedPremiums[time_iter+timeGap].premium - actualPremiums[time_iter].price) / actualPremiums[time_iter].price) * 100  > 100*brockerage):
             # expected pnl>0 ,  actual pnl>0
             if expectedPremiums[time_iter+timeGap].premium-actualPremiums[time_iter].price >= 0 and actualPremiums[time_iter+timeGap].price  - actualPremiums[time_iter].price  >= 0 :
                 indiv_pnl = (actualPremiums[time_iter+timeGap].price-actualPremiums[time_iter].price - brockerage*actualPremiums[time_iter].price)
                 pnl += indiv_pnl
+                p +=1
             
             # expected pnl>0 ,  actual pnl<0
             elif expectedPremiums[time_iter+timeGap].premium-actualPremiums[time_iter].price  >= 0 and actualPremiums[time_iter+timeGap].price  - actualPremiums[time_iter].price  <= 0:
                 indiv_pnl = -1*(actualPremiums[time_iter].price - actualPremiums[time_iter+timeGap].price + brockerage*actualPremiums[time_iter].price)
                 pnl += indiv_pnl
+                q+=1
             
             # expected pnl<0 ,  actual pnl<0
             elif expectedPremiums[time_iter+timeGap].premium - actualPremiums[time_iter].price  <= 0 and actualPremiums[time_iter+timeGap].price  - actualPremiums[time_iter].price  <= 0:
-                indiv_pnl = -1*(actualPremiums[time_iter].price-actualPremiums[time_iter+timeGap].price + brockerage*actualPremiums[time_iter].price)
+                indiv_pnl = -1*(actualPremiums[time_iter].price-actualPremiums[time_iter+timeGap].price - brockerage*actualPremiums[time_iter].price)
                 pnl += indiv_pnl
+                r+=1
 
             # expected pnl<0 ,  actual pnl>0
             # predicted decrease, actually increases
             elif expectedPremiums[time_iter+timeGap].premium - actualPremiums[time_iter].price  <= 0 and actualPremiums[time_iter+timeGap].price - actualPremiums[time_iter].price  >= 0:
-                indiv_pnl =(actualPremiums[time_iter+timeGap].price-actualPremiums[time_iter].price - brockerage*actualPremiums[time_iter].price)
+                indiv_pnl =(actualPremiums[time_iter+timeGap].price-actualPremiums[time_iter].price + brockerage*actualPremiums[time_iter].price)
                 pnl += indiv_pnl
+                s+=1
             
             # time t, actual price at t, delta at t, expected price at t + timeGap, actual at t + timeGap    
             rows.append([actualPremiums[time_iter].time.strftime("%d/%m/%Y, %H:%M:%S"), actualPremiums[time_iter].price,    expectedPremiums[time_iter+timeGap].premium,   actualPremiums[time_iter+timeGap].price,     actualPremiums[time_iter].delta ,      expectedValues[time_iter+timeGap].delta ,    actualPremiums[time_iter+timeGap].delta,     actualSpots[time_iter].spot ,  expectedSpots[time_iter+timeGap].spot,  actualSpots[time_iter+timeGap].spot,    expectedPremiums[time_iter+timeGap].time.strftime("%d/%m/%Y, %H:%M:%S"), indiv_pnl])
@@ -653,6 +643,10 @@ def ProfitorLossforaDay(expectedPremiums, actualSpots, expectedSpots, actualPrem
 
     rows[3].extend(["   ","positive:",profit_i])
     rows[4].extend(["   ","negative:",loss_i])
+    rows[6].extend(["   ","EPAP:",p])
+    rows[7].extend(["   ","EPAL:",q])
+    rows[8].extend(["   ","ELAP:",s])
+    rows[9].extend(["   ","ELAL:",r])
 
     with open(location  , "w", newline="") as f:
         writer = csv.writer(f)
@@ -863,7 +857,7 @@ def computeGreeks(path, fileName, spotData, windowSize, timeGap, targetStrike, o
 
         # with open(location1  , "a") as f:
         file = open(location1, "a")
-        file.write(str(strikePnl[0]) + "---->" + str(strikePnl[1]) + "\n" )
+        file.write(str(strikePnl[0]) +f"{windowSize}_{timeGap}" +"---->" + str(strikePnl[1]) + "\n" )
         file.close()
 
 #plot shows expected change not actual value
@@ -899,12 +893,14 @@ if __name__ == "__main__":
     # 2. estimation_type = "simple" ---> average of changes used to interpolate values at t+5
     # --------------------------------------------------------------
     
-    for greek_use_i in ["predict", "now"]:
+    for greek_use_i in ["predict"]:
         for estimation_type_i in["regress"]:
             
-            prev_windowSize = 20
-            timeGap = 5
+            prev_windowSize = 3
+            timeGap = 1
             # targetStrike = 28700
-            optionType = "PE"
-            for targetStrike in tqdm([29500]):
-                computeGreeks(path, fileName, spotData, prev_windowSize, timeGap, targetStrike, optionType, date=1, month=12, year=2020, hourFrom=9, minuteFrom=15, secondFrom=0, hourTo=15, minuteTo=30, secondTo=0, estimation_type=estimation_type_i, greek_use=greek_use_i)
+            for prev_windowSize in [30, 15, 8, 5, 2]:
+                for timeGap in [2, 3, 5, 10, 20]:
+                    optionType = "PE"
+                    for targetStrike in tqdm([28500]):
+                        computeGreeks(path, fileName, spotData, prev_windowSize, timeGap, targetStrike, optionType, date=1, month=12, year=2020, hourFrom=9, minuteFrom=15, secondFrom=0, hourTo=15, minuteTo=30, secondTo=0, estimation_type=estimation_type_i, greek_use=greek_use_i)
