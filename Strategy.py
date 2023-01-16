@@ -155,6 +155,39 @@ def computeExpectedRegress(buffer, windowSize, timeGap):
     # return Price*timeGap, Vol*timeGap, Imp_v*timeGap, Delta*timeGap, Theta*timeGap, Vega*timeGap, Gamma*timeGap, Rho*timeGap
     return m3*timeGap, m8*timeGap, m4*timeGap, m1*timeGap, m2*timeGap, m5*timeGap, m6*timeGap, m7*timeGap
 
+def computeEMA(buffer,windowSize,smoothingFactor,numSeconds):
+
+    PriceBuffer = []
+    VolBuffer = []
+    Imp_VBuffer = []
+    DeltaBuffer = []
+    ThetaBuffer = []
+    VegaBuffer = []
+    GammaBuffer = []
+    RhoBuffer = []
+
+    for i in range(windowSize):
+        PriceBuffer.append(buffer[i].price)
+        VolBuffer.append(buffer[i].vol)
+        Imp_VBuffer.append(buffer[i].imp_v)
+        DeltaBuffer.append(buffer[i].delta)
+        ThetaBuffer.append(buffer[i].theta)
+        VegaBuffer.append(buffer[i].vega)
+        GammaBuffer.append(buffer[i].gamma)
+        RhoBuffer.append(buffer[i].rho)
+    
+    price = PriceBuffer[len(PriceBuffer)-1] + EMA(PriceBuffer,len(PriceBuffer),smoothingFactor,numSeconds)
+    vol = VolBuffer[len(VolBuffer)-1] + EMA(VolBuffer,len(VolBuffer),smoothingFactor,numSeconds)
+    imp_v = Imp_VBuffer[len(Imp_VBuffer)-1] + EMA(Imp_VBuffer,len(Imp_VBuffer),smoothingFactor,numSeconds)
+    delta = DeltaBuffer[len(DeltaBuffer)-1] + EMA(DeltaBuffer,len(DeltaBuffer),smoothingFactor,numSeconds)
+    theta = ThetaBuffer[len(ThetaBuffer)-1] + EMA(ThetaBuffer,len(ThetaBuffer),smoothingFactor,numSeconds)
+    vega = VegaBuffer[len(VegaBuffer)-1] + EMA(VegaBuffer,len(VegaBuffer),smoothingFactor,numSeconds)
+    gamma = GammaBuffer[len(GammaBuffer)-1] + EMA(GammaBuffer,len(GammaBuffer),smoothingFactor,numSeconds)
+    rho = RhoBuffer[len(RhoBuffer)-1] + EMA(RhoBuffer,len(RhoBuffer),smoothingFactor,numSeconds)
+
+    return price,vol,imp_v,delta,theta,vega,gamma,rho
+
+
 def computeExpected(buffer, windowSize, timeGap):
     # changes in parameters
     Price = 0
@@ -222,7 +255,7 @@ def plotForParameter(parameter, actualValues, expectedValues, averageValues, tim
         Av = [av.rho for av in averageValues]
     
     #change path here
-    location = f"D:\\Desktop\\College Documents\\ProjectExtramarks2\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\{stry}\\{type1}_{estimation_type}\\"
+    location = f"D:\\College Documents\\ExtramarksOptionsTrading\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\{stry}\\{type1}_{estimation_type}\\"
     # print(location)
     j=0
     try:
@@ -294,7 +327,7 @@ def plotForParameterError(parameter, actualValues, expectedValues, averageValues
         
     #change path here
     # location = f"X:\\NXBLOCK\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\{str}_{estimation_type}_{type}"
-    location = f"D:\\Desktop\\College Documents\\ProjectExtramarks2\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\{stry}\\{type1}_{estimation_type}\\"
+    location = f"D:\\College Documents\\ExtramarksOptionsTrading\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\{stry}\\{type1}_{estimation_type}\\"
     j=0
     try:    
         if(os.path.exists(location)):
@@ -373,6 +406,36 @@ def AverageChangeRegress(buffer, windowSize):
 
     return m_spot
 
+def averageofArray(arr):
+
+    return sum(arr)/len(arr)
+
+# numSeconds denotes how much importance do we give to last numSeconds
+def EMA(arr,windowSize,smoothingFactor,numSeconds):
+
+    beta = smoothingFactor/(windowSize+1)
+
+    ans = 0
+    prev_ema = 0
+
+    starting_index = 0
+    ending_index = numSeconds
+
+    for i in range(0,int(windowSize/numSeconds)):
+
+        # curr_val = averageofArray(arr[starting_index:ending_index])
+        curr_val = arr[ending_index-1] - arr[starting_index]
+        ans+=beta*curr_val+(1-beta)*prev_ema
+        prev_ema = ans
+        starting_index = ending_index
+        ending_index += numSeconds
+    
+    return ans
+
+
+
+
+
 def AverageChange(buffer, windowSize):
     sum = 0
     for i in range(1,len(buffer)):
@@ -405,6 +468,7 @@ def computeSpotsActual(year,month,day,spotData):
 def computeExpectedSpotChanges(year,month,day, data,windowSize,timeGap, type):
     SpotPrices = computeSpotsActual(year,month,day,data)
     PredictedSpotChanges = []
+    spots = []
     datetime_start = datetime(year,month,day,9,15,0)
     datetime_end = datetime(year,month,day,15,30,1)
     iter = datetime_start
@@ -413,6 +477,7 @@ def computeExpectedSpotChanges(year,month,day, data,windowSize,timeGap, type):
     # Initialization of buffer
     while(iter < datetime(year,month,day,9,15,windowSize)):
         buffer.append(SpotPrices[j])
+        spots.append(SpotPrices[j].spot)
         # print(iter)
         iter+=timedelta(seconds=1)
         j+=1
@@ -427,12 +492,17 @@ def computeExpectedSpotChanges(year,month,day, data,windowSize,timeGap, type):
 
         if(type=="regress"):
             PredictedSpotChange = timeGap*AverageChangeRegress(buffer, windowSize)
+        
+        if(type=="ema"):
+            PredictedSpotChange = EMA(spots,len(buffer),2,5)
         # print(PredictedSpotChange)
         PredictedSpotChanges.append(spotpair(next_iter,PredictedSpotChange))
         iter+=timedelta(seconds=1)
         next_iter+=timedelta(seconds=1)
         buffer.append(SpotPrices[j])
+        spots.append(SpotPrices[j].spot)
         del buffer[0]
+        del spots[0]
         j+=1
 
     return PredictedSpotChanges, SpotPrices
@@ -442,7 +512,7 @@ def plotPremiumActual(exptectedPremiums, actualValues,timeList, targetStrike, wi
     stry="actual"
     parameter="Premium"
     # location = f"X:\\NXBLOCK\\OptionsTradingStrategy\\Reports\\{targetStrike}_{windowSize}_{timeGap}_{year}_{month}_{date}_{str}\\"
-    location = f"D:\\Desktop\\College Documents\\ProjectExtramarks2\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\{stry}\\{type1}_{estimation_type}"
+    location = f"D:\\College Documents\\ExtramarksOptionsTrading\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\{stry}\\{type1}_{estimation_type}"
     j=0
     try:
         if(os.path.exists(location)):
@@ -516,7 +586,7 @@ def plotPremiumError(exptectedPremiums, actualValues, timeList, targetStrike, wi
     stry="error"
     parameter="Premium"
     #calculating the percentage change from actual and expected value at each second 
-    location = f"D:\\Desktop\\College Documents\\ProjectExtramarks2\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\{stry}\\{type1}_{estimation_type}"
+    location = f"D:\\College Documents\\ExtramarksOptionsTrading\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\{stry}\\{type1}_{estimation_type}"
     j=0
     try:
         if(os.path.exists(location)):
@@ -601,7 +671,7 @@ def ProfitorLossforaDay(expectedPremiums, actualSpots, expectedSpots, actualPrem
 
     timeList, lenBefore, lenAfter = getTimeList(year, month, date, hourTo, minuteTo, secondTo, hourFrom, minuteFrom , secondFrom, windowSize)
     
-    location = f"D:\\Desktop\\College Documents\\ProjectExtramarks2\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\Report_{greek_type}_{estimation_type}.csv"
+    location = f"D:\\College Documents\\ExtramarksOptionsTrading\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\Report_{greek_type}_{estimation_type}.csv"
 
     time_iter = lenBefore + timeGap
     end_iter = lenAfter
@@ -782,6 +852,9 @@ def computeGreeks(path, fileName, spotData, windowSize, timeGap, targetStrike, o
                         if(estimation_type == "regress"):
                             priceExpected, volEx, imp_vExpected, deltaExpected, thetaExpected, vegaExpected, gammaExpected, rhoExpected = computeExpectedRegress(windowBuffer, windowSize, timeGap)
                         
+                        if(estimation_type == "ema"):
+                            priceExpected, volEx, imp_vExpected, deltaExpected, thetaExpected, vegaExpected, gammaExpected, rhoExpected = computeEMA(windowBuffer,windowSize,2,5)
+
                         expValues = Contract(priceExpected, 1, imp_vExpected, deltaExpected, thetaExpected, vegaExpected, gammaExpected, rhoExpected, trade_time)
 
                         averageValues.append(nextValues)
@@ -862,7 +935,7 @@ def computeGreeks(path, fileName, spotData, windowSize, timeGap, targetStrike, o
         print("PNL: ", pnl)
         strikePnl = [targetStrike, pnl]
 
-        location1 = f"D:\\Desktop\\College Documents\\ProjectExtramarks2\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{greek_use}_{estimation_type}_strikeReports.txt "
+        location1 = f"D:\\College Documents\\ExtramarksOptionsTrading\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{greek_use}_{estimation_type}_strikeReports.txt "
 
         # with open(location1  , "a") as f:
         file = open(location1, "a")
@@ -873,10 +946,10 @@ def computeGreeks(path, fileName, spotData, windowSize, timeGap, targetStrike, o
 #expected premium not calculated from greeks
 
 if __name__ == "__main__":
-    path = "D:\\Desktop\\College Documents\\ProjectExtramarks2\\OptionsTradingStrategy"
+    path = "D:\College Documents\ExtramarksOptionsTrading\OptionsTradingStrategy"
     fileName = "1.pkl"
 
-    spotPath = "D:\\Desktop\\College Documents\\ProjectExtramarks2\\OptionsTradingStrategy\\BANKNIFTY_spot_seconds_till_2022_10_12.json"
+    spotPath = "D:\College Documents\ExtramarksOptionsTrading\OptionsTradingStrategy\BANKNIFTY_spot_seconds_till_2022_10_12.json"
 
     print("Spot JSON loading..")
     spotData = load_json(spotPath)
@@ -902,9 +975,9 @@ if __name__ == "__main__":
     # --------------------------------------------------------------
     
     for greek_use_i in ["predict", "now"]:
-        for estimation_type_i in["regress"]:
+        for estimation_type_i in["ema"]:
             
-            prev_windowSize = 59
+            prev_windowSize = 20
             timeGap = 5
             # targetStrike = 28700
             optionType = "CE"
