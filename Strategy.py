@@ -30,6 +30,11 @@ class spotpair():
         self.time = time
         self.spot = spot
 
+class ivpair():
+    def __init__(self,time,iv):
+        self.time = time
+        self.iv = iv
+
 class prempair():
     def __init__(self, time, premium):
         self.time = time
@@ -153,7 +158,20 @@ def computeExpectedRegress(buffer, windowSize, timeGap):
             m8, c8, r8, p8, se8 = stats.linregress(t_list, Vol)
 
     # return Price*timeGap, Vol*timeGap, Imp_v*timeGap, Delta*timeGap, Theta*timeGap, Vega*timeGap, Gamma*timeGap, Rho*timeGap
+
     return m3*timeGap, m8*timeGap, m4*timeGap, m1*timeGap, m2*timeGap, m5*timeGap, m6*timeGap, m7*timeGap
+
+
+# def computeChangeinIV(buffer,windowSize,smoothingFactor,numSeconds):
+#     Imp_VBuffer = []
+
+#     for i in range(windowSize):
+#         Imp_VBuffer.append(buffer[i].imp_v)
+    
+#     imp_v = EMA(Imp_VBuffer,windowSize,smoothingFactor,numSeconds)
+
+#     return imp_v
+
 
 def computeEMA(buffer,windowSize,smoothingFactor,numSeconds):
 
@@ -631,6 +649,32 @@ def plotPremiumError(exptectedPremiums, actualValues, timeList, targetStrike, wi
         os.makedirs(location)
     pyplot.savefig(location + f"{parameter} ErrorChart", bbox_inches="tight")
     pyplot.close()
+
+
+def computePremiumExpectedusingVega(actualValues, expectedValues, expectedIVChanges, windowSize, timeGap, targetStrike, hourFrom, minuteFrom, secondFrom, hourTo, minuteTo , secondTo, date, month, year, estimation_type, type="now"):
+    expectedPremiums = []
+
+    timeList, lenBefore, lenAfter = getTimeList(year, month, date, hourTo, minuteTo, secondTo, hourFrom, minuteFrom, secondFrom, windowSize)
+
+     # print(actualValues[0].time,expectedValues[timeGap].time,expectedSpotChanges[timeGap].time)
+    for i in range(len(actualValues)):
+        if(i<timeGap):
+            expectedPremiums.append(prempair(actualValues[i].time, 0))
+        else:
+            #   MX  +  C 
+            if(type=="predict"):
+            # delta for t+5
+                expectedPremiums.append(prempair(expectedIVChanges[i].time, actualValues[i-timeGap].price +  expectedValues[i].vega*(expectedIVChanges[i])))
+
+            if(type=="now"):
+            # delta for t
+                expectedPremiums.append(prempair(expectedIVChanges[i].time, actualValues[i-timeGap].price +  actualValues[i-timeGap].vega*expectedIVChanges[i]))
+    
+    # print(actualValues[-6].price, expectedValues[-1].delta, spotsExpected[-1].spot, expectedPremiums[-1].premium)
+    plotPremiumError(expectedPremiums,actualValues, timeList, targetStrike, windowSize, timeGap, year, month, date, lenBefore, estimation_type, type)
+    plotPremiumActual(expectedPremiums,actualValues, timeList, targetStrike, windowSize, timeGap, year, month, date, lenBefore, estimation_type, type)
+    return expectedPremiums
+
 
 def computePremiumExpected(actualValues, expectedValues, expectedSpotChanges, windowSize, timeGap, targetStrike,hourFrom, minuteFrom, secondFrom, hourTo, minuteTo, secondTo, date, month, year, estimation_type,type="now"):
     expectedPremiums = []
