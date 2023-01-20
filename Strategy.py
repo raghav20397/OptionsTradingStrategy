@@ -531,44 +531,6 @@ def plotValFit(windowSize,TimeGap,data,year,month,date,targetStrike):
         buffer.append(SpotPrices[j].spot)
         j+=1
         next_iter+=timedelta(seconds=1)
-        # if(type=="simple"):
-        #     PredictedSpotChange = timeGap*AverageChange(buffer, windowSize)
-
-        # if(type=="regress"):
-        #     PredictedSpotChange = timeGap*AverageChangeRegress(buffer, windowSize)
-        # # print(PredictedSpotChange)
-        # PredictedSpotChanges.append(spotpair(next_iter,PredictedSpotChange))
-        # iter+=timedelta(seconds=1)
-        # next_iter+=timedelta(seconds=1)
-        # buffer.append(SpotPrices[j])
-        # del buffer[0]
-        # j+=1
-    # endstr = "plotsforCheckingFit"
-    # # location = f"D:\\Desktop\\College Documents\\ProjectExtramarks2\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{WindowSize}_{TimeGap}\\{endstr}"
-    # location = f"X:\\NXBLOCK\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\{endstr}"
-
-    # X_Vals1 = np.arange(0,20)
-    # X_Vals2 = np.arange(0,25)
-
-    # Y_Vals1 = np.array(ValforWindowSize)
-    # m, c, r, p, se = stats.linregress(X_Vals1,Y_Vals1)
-
-    # pyplot.xlim(0,30)
-    # pyplot.ylim(-1000,1000)
-
-    # pyplot.plot(X_Vals1,Y_Vals1,color="red")
-    # pyplot.plot([24],ActualValafterTimeGap,color="red")
-    # pyplot.plot(X_Vals2,m*X_Vals2+ValforWindowSize[0],color="blue",linestyle="dashed")
-    # pyplot.plot([24],m*TimeGap+ValforWindowSize[len(ValforWindowSize)-1],color="green")
-
-    # pyplot.legend()
-
-    # nameofPlot = str(year) + "_" + str(month) + "_" + str(date) + "_" + str(time) + ".jpg"
-    # if not os.path.exists(location):
-    #     os.makedirs(location)
-    
-    # pyplot.savefig(nameofPlot)
-    # pyplot.close()
     
 def plotPremiumError(exptectedPremiums, actualValues, timeList, targetStrike, windowSize,timeGap, year, month, date, lenBefore, estimation_type,type1):
     type1 = str(type1)
