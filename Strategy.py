@@ -130,6 +130,7 @@ def computeExpectedRegress(buffer, windowSize, timeGap):
     for parameter in parameters:
         if(parameter == "delta"):
             m1, c1, r1, p1, se1 = stats.linregress(t_list, Delta)
+            mymodel = np.poly1d(np.polyfit(t_list, Delta,3))
 
         if parameter == "theta":
             m2, c2, r2, p2, se2 = stats.linregress(t_list, Theta)
@@ -476,34 +477,98 @@ def plotPremiumActual(exptectedPremiums, actualValues,timeList, targetStrike, wi
     pyplot.savefig(location + f"{parameter} ComparisionChart", bbox_inches="tight")
     pyplot.close()
 
-def plotValFit(ValforWindowSize,windowSize,TimeGap,ActualValafterTimeGap,year,month,date,targetStrike,time):
-
+def plotValFit(windowSize,TimeGap,data,year,month,date,targetStrike):
+    SpotPrices = computeSpotsActual(year,month,date,data)
+    # PredictedSpotChanges = []
     endstr = "plotsforCheckingFit"
-    # location = f"D:\\Desktop\\College Documents\\ProjectExtramarks2\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{WindowSize}_{TimeGap}\\{endstr}"
-    location = f"X:\\NXBLOCK\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\{endstr}"
-
-    X_Vals1 = np.arange(0,20)
-    X_Vals2 = np.arange(0,25)
-
-    Y_Vals1 = np.array(ValforWindowSize)
-    m, c, r, p, se = stats.linregress(X_Vals1,Y_Vals1)
-
-    pyplot.xlim(0,30)
-    pyplot.ylim(-1000,1000)
-
-    pyplot.plot(X_Vals1,Y_Vals1,color="red")
-    pyplot.plot([24],ActualValafterTimeGap,color="red")
-    pyplot.plot(X_Vals2,m*X_Vals2+ValforWindowSize[0],color="blue",linestyle="dashed")
-    pyplot.plot([24],m*TimeGap+ValforWindowSize[len(ValforWindowSize)-1],color="green")
-
-    pyplot.legend()
-
-    nameofPlot = str(year) + "_" + str(month) + "_" + str(date) + "_" + str(time) + ".jpg"
-    if not os.path.exists(location):
-        os.makedirs(location)
     
-    pyplot.savefig(nameofPlot)
-    pyplot.close()
+    datetime_start = datetime(year,month,date,9,15,0)
+    datetime_end = datetime(year,month,date,15,30,1)
+    iter = datetime_start
+    j=0
+    buffer = []
+    # Initialization of buffer
+    while(iter < datetime(year,month,date,9,15,windowSize+TimeGap)):
+        buffer.append(SpotPrices[j].spot)
+        # print(iter)
+        iter+=timedelta(seconds=1)
+        j+=1
+    iter = iter - timedelta(seconds=1)
+    # print(".",iter, timeGap)
+    next_iter = iter + timedelta(seconds=TimeGap)
+    numPlots = 0
+    k=0
+    while(next_iter < datetime_end and numPlots <= 10):
+        k+=1
+        if(k%1800==0):
+        # location = f"D:\\Desktop\\College Documents\\ProjectExtramarks2\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{WindowSize}_{TimeGap}\\{endstr}"
+            location = f"X:\\NXBLOCK\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\{endstr}\\"
+
+            X_Vals1 = np.arange(0,windowSize)
+            X_Vals2 = np.arange(0,windowSize + TimeGap)
+
+            Y_Vals1 = np.array(buffer[0:windowSize])
+            m, c, r, p, se = stats.linregress(X_Vals1,Y_Vals1)
+
+            pyplot.xlim(0,windowSize + 2*TimeGap) 
+            # pyplot.ylim(-1000,1000)
+
+            pyplot.plot(X_Vals2,np.array(buffer),color="red", label= "Actual Spot vals")
+            # pyplot.plot([j+timeGap],SpotPrices[j+TimeGap].spot,color="red")
+            pyplot.plot(X_Vals2,m*X_Vals2+buffer[0],color="blue",linestyle="dashed", label= "best fit expected line")
+            # pyplot.plot([j+timeGap],m*TimeGap+buffer[len(buffer)-1],color="green", label= "expected spot")
+
+            pyplot.legend()
+
+            nameofPlot = str(k)+"_" + str(numPlots) + ".jpg"
+            if not os.path.exists(location):
+                os.mkdir(location)
+            
+            pyplot.savefig(location + nameofPlot)
+            pyplot.close()
+            numPlots+=1
+        del buffer[0]
+        buffer.append(SpotPrices[j].spot)
+        j+=1
+        next_iter+=timedelta(seconds=1)
+        # if(type=="simple"):
+        #     PredictedSpotChange = timeGap*AverageChange(buffer, windowSize)
+
+        # if(type=="regress"):
+        #     PredictedSpotChange = timeGap*AverageChangeRegress(buffer, windowSize)
+        # # print(PredictedSpotChange)
+        # PredictedSpotChanges.append(spotpair(next_iter,PredictedSpotChange))
+        # iter+=timedelta(seconds=1)
+        # next_iter+=timedelta(seconds=1)
+        # buffer.append(SpotPrices[j])
+        # del buffer[0]
+        # j+=1
+    # endstr = "plotsforCheckingFit"
+    # # location = f"D:\\Desktop\\College Documents\\ProjectExtramarks2\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{WindowSize}_{TimeGap}\\{endstr}"
+    # location = f"X:\\NXBLOCK\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\{endstr}"
+
+    # X_Vals1 = np.arange(0,20)
+    # X_Vals2 = np.arange(0,25)
+
+    # Y_Vals1 = np.array(ValforWindowSize)
+    # m, c, r, p, se = stats.linregress(X_Vals1,Y_Vals1)
+
+    # pyplot.xlim(0,30)
+    # pyplot.ylim(-1000,1000)
+
+    # pyplot.plot(X_Vals1,Y_Vals1,color="red")
+    # pyplot.plot([24],ActualValafterTimeGap,color="red")
+    # pyplot.plot(X_Vals2,m*X_Vals2+ValforWindowSize[0],color="blue",linestyle="dashed")
+    # pyplot.plot([24],m*TimeGap+ValforWindowSize[len(ValforWindowSize)-1],color="green")
+
+    # pyplot.legend()
+
+    # nameofPlot = str(year) + "_" + str(month) + "_" + str(date) + "_" + str(time) + ".jpg"
+    # if not os.path.exists(location):
+    #     os.makedirs(location)
+    
+    # pyplot.savefig(nameofPlot)
+    # pyplot.close()
     
 def plotPremiumError(exptectedPremiums, actualValues, timeList, targetStrike, windowSize,timeGap, year, month, date, lenBefore, estimation_type,type1):
     type1 = str(type1)
@@ -602,6 +667,8 @@ def ProfitorLossforaDay(expectedPremiums, actualSpots, expectedSpots, actualPrem
             # expected pnl>0 ,  actual pnl>0
             if expectedPremiums[time_iter+timeGap].premium-actualPremiums[time_iter].price >= 0 and actualPremiums[time_iter+timeGap].price  - actualPremiums[time_iter].price  >= 0 :
                 indiv_pnl = (actualPremiums[time_iter+timeGap].price-actualPremiums[time_iter].price - brockerage*actualPremiums[time_iter].price)
+                # indiv_pnl = expectedSpots[time_iter + timeGap]-(actualPremiums[time_iter].strike)-actualPremiums[time_iter].price - brockerage*actualPremiums[time_iter].price)
+
                 pnl += indiv_pnl
                 p +=1
             
@@ -613,14 +680,14 @@ def ProfitorLossforaDay(expectedPremiums, actualSpots, expectedSpots, actualPrem
             
             # expected pnl<0 ,  actual pnl<0
             elif expectedPremiums[time_iter+timeGap].premium - actualPremiums[time_iter].price  <= 0 and actualPremiums[time_iter+timeGap].price  - actualPremiums[time_iter].price  <= 0:
-                indiv_pnl = -1*(actualPremiums[time_iter].price-actualPremiums[time_iter+timeGap].price - brockerage*actualPremiums[time_iter].price)
+                indiv_pnl = -1*(actualPremiums[time_iter].price-actualPremiums[time_iter+timeGap].price + brockerage*actualPremiums[time_iter].price)
                 pnl += indiv_pnl
                 r+=1
 
             # expected pnl<0 ,  actual pnl>0
             # predicted decrease, actually increases
             elif expectedPremiums[time_iter+timeGap].premium - actualPremiums[time_iter].price  <= 0 and actualPremiums[time_iter+timeGap].price - actualPremiums[time_iter].price  >= 0:
-                indiv_pnl =(actualPremiums[time_iter+timeGap].price-actualPremiums[time_iter].price + brockerage*actualPremiums[time_iter].price)
+                indiv_pnl =(actualPremiums[time_iter+timeGap].price-actualPremiums[time_iter].price - brockerage*actualPremiums[time_iter].price)
                 pnl += indiv_pnl
                 s+=1
             
@@ -852,6 +919,8 @@ def computeGreeks(path, fileName, spotData, windowSize, timeGap, targetStrike, o
         print("PNL: ", pnl)
         strikePnl = [targetStrike, pnl]
 
+        plotValFit(windowSize,timeGap,spotData,year,month,date,targetStrike)
+
         # location1 = f"D:\\Desktop\\College Documents\\ProjectExtramarks2\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{greek_use}_{estimation_type}_strikeReports.txt "
         location1 = f"X:\\NXBLOCK\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{greek_use}_{estimation_type}_strikeReports.txt "
 
@@ -873,6 +942,7 @@ if __name__ == "__main__":
     print("Spot JSON loading..")
     spotData = load_json(spotPath)
     print("Spot JSON loaded ")
+
 
     # change path to save graphs and csv
     # --------------------------------------------------------------
@@ -896,11 +966,11 @@ if __name__ == "__main__":
     for greek_use_i in ["predict"]:
         for estimation_type_i in["regress"]:
             
-            prev_windowSize = 3
-            timeGap = 1
+            prev_windowSize = 4
+            timeGap = 2
             # targetStrike = 28700
-            for prev_windowSize in [30, 15, 8, 5, 2]:
-                for timeGap in [2, 3, 5, 10, 20]:
+            for prev_windowSize in [4]:
+                for timeGap in [2]:
                     optionType = "PE"
                     for targetStrike in tqdm([28500]):
                         computeGreeks(path, fileName, spotData, prev_windowSize, timeGap, targetStrike, optionType, date=1, month=12, year=2020, hourFrom=9, minuteFrom=15, secondFrom=0, hourTo=15, minuteTo=30, secondTo=0, estimation_type=estimation_type_i, greek_use=greek_use_i)
