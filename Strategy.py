@@ -584,9 +584,9 @@ def EMA(arr,windowSize,smoothingFactor,numSeconds):
     ending_index = numSeconds
 
     try:
-            prev_ema = arr[ending_index-1] - arr[starting_index]
+        prev_ema = arr[ending_index-1] - arr[starting_index]
     except:
-            prev_ema = arr[len(arr)-1] - arr[0]
+        prev_ema = arr[len(arr)-1] - arr[0]
 
     for i in range(0,int(windowSize/numSeconds)):
 
