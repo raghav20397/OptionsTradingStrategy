@@ -3,6 +3,7 @@ import pickle as pkl
 from datetime import datetime, timedelta
 import pickle
 import os
+import math
 from matplotlib import pyplot
 import numpy as np
 import copy
@@ -574,31 +575,53 @@ def plotValFit(windowSize,TimeGap,data,year,month,date,targetStrike):
         j+=1
         next_iter+=timedelta(seconds=1)
     
-def EMA(arr,windowSize,smoothingFactor,numSeconds):
+def EMA(arr,windowSize,smoothingFactor,timeGap):
 
-    beta = smoothingFactor/(windowSize+1)
+    coefficient_arr = [math.exp(i*0.1) for i in range(1, timeGap+1)]
 
-    ans = 0
+    avg_buffer = []
+    if(windowSize - timeGap - timeGap >=1):
+        for i in range(0, windowSize - timeGap):
+            average_change=0
+            for j in range(0,timeGap):
+                average_change += (arr[i+j+1]-arr[i+j])*coefficient_arr[j]
+                average_change /= sum(coefficient_arr)
 
-    starting_index = 0
-    ending_index = numSeconds
+            avg_buffer.append(average_change)
+        # try:
+        fin = sum(avg_buffer)/len(avg_buffer)
+    else:
+        print("prev window size is big")
+        fin=0
+    # except:
+    #     fin = 0
+    return fin
 
-    try:
-        prev_ema = arr[ending_index-1] - arr[starting_index]
-    except:
-        prev_ema = arr[len(arr)-1] - arr[0]
+# def EMA(arr,windowSize,smoothingFactor,numSeconds):
 
-    for i in range(0,int(windowSize/numSeconds)):
+#     beta = smoothingFactor/(windowSize+1)
 
-        # curr_val = averageofArray(arr[starting_index:ending_index])
-        curr_val = arr[ending_index-1] - arr[starting_index]
-        ans+=beta*curr_val+(1-beta)*prev_ema
-        prev_ema = ans
-        starting_index = ending_index
-        ending_index += numSeconds
+#     ans = 0
+
+#     starting_index = 0
+#     ending_index = numSeconds
+
+#     try:
+#         prev_ema = arr[ending_index-1] - arr[starting_index]
+#     except:
+#         prev_ema = arr[len(arr)-1] - arr[0]
+
+#     for i in range(0,int(windowSize/numSeconds)):
+
+#         # curr_val = averageofArray(arr[starting_index:ending_index])
+#         curr_val = arr[ending_index-1] - arr[starting_index]
+#         ans+=beta*curr_val+(1-beta)*prev_ema
+#         prev_ema = ans
+#         starting_index = ending_index
+#         ending_index += numSeconds
     
-    return ans
-
+#     return ans
+        
 def computeEMA(buffer,windowSize,smoothingFactor,numSeconds):
 
     PriceBuffer = []
@@ -1032,16 +1055,13 @@ if __name__ == "__main__":
     # --------------------------------------------------------------
     
     for greek_use_i in ["predict"]:
-        for estimation_type_i in["ema", "regress"]:
-            
-            prev_windowSize = 4
-            timeGap = 2
+        for estimation_type_i in["ema"]:
             # targetStrike = 28700
-            for prev_windowSize in tqdm([ 20,30]):
-                for timeGap in [2, 3, 5,10,15]:
+            for prev_windowSize in tqdm([20, 30]):
+                for timeGap in [2,5,10,20]:
                     optionType = "PE"
                     if(estimation_type_i == "ema"):
-                        for smoothingFactor in [k/10 for k in range(1, 20)]:
+                        for smoothingFactor in [0.5]:
                             for targetStrike in [28500]:
                                 computeGreeks(path, fileName, spotData, prev_windowSize, timeGap, targetStrike, optionType, smoothingFactor,date=1, month=12, year=2020, hourFrom=9, minuteFrom=15, secondFrom=0, hourTo=15, minuteTo=30, secondTo=0, estimation_type=estimation_type_i, greek_use=greek_use_i)
                     else:
