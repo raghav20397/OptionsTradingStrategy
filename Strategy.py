@@ -131,7 +131,7 @@ def computeExpectedRegress(buffer, windowSize, timeGap):
     for parameter in parameters:
         if(parameter == "delta"):
             m1, c1, r1, p1, se1 = stats.linregress(t_list, Delta)
-            mymodel = np.poly1d(np.polyfit(t_list, Delta,3))
+            # mymodel = np.poly1d(np.polyfit(t_list, Delta,3))
 
         if parameter == "theta":
             m2, c2, r2, p2, se2 = stats.linregress(t_list, Theta)
@@ -575,7 +575,7 @@ def plotValFit(windowSize,TimeGap,data,year,month,date,targetStrike):
         j+=1
         next_iter+=timedelta(seconds=1)
     
-def EMA(arr,windowSize,smoothingFactor,timeGap):
+def EMA_ra(arr,windowSize,smoothingFactor,timeGap):
 
     coefficient_arr = [math.exp(i*0.1) for i in range(1, timeGap+1)]
 
@@ -597,30 +597,30 @@ def EMA(arr,windowSize,smoothingFactor,timeGap):
     #     fin = 0
     return fin
 
-# def EMA(arr,windowSize,smoothingFactor,numSeconds):
+def EMA(arr,windowSize,smoothingFactor,numSeconds):
 
-#     beta = smoothingFactor/(windowSize+1)
+    beta = smoothingFactor/(windowSize+1)
 
-#     ans = 0
+    ans = 0
 
-#     starting_index = 0
-#     ending_index = numSeconds
+    starting_index = 0
+    ending_index = numSeconds
 
-#     try:
-#         prev_ema = arr[ending_index-1] - arr[starting_index]
-#     except:
-#         prev_ema = arr[len(arr)-1] - arr[0]
+    try:
+        prev_ema = arr[ending_index-1] - arr[starting_index]
+    except:
+        prev_ema = arr[len(arr)-1] - arr[0]
 
-#     for i in range(0,int(windowSize/numSeconds)):
+    for i in range(0,int(windowSize/numSeconds)):
 
-#         # curr_val = averageofArray(arr[starting_index:ending_index])
-#         curr_val = arr[ending_index-1] - arr[starting_index]
-#         ans+=beta*curr_val+(1-beta)*prev_ema
-#         prev_ema = ans
-#         starting_index = ending_index
-#         ending_index += numSeconds
+        # curr_val = averageofArray(arr[starting_index:ending_index])
+        curr_val = arr[ending_index-1] - arr[starting_index]
+        ans+=beta*curr_val+(1-beta)*prev_ema
+        prev_ema = ans
+        starting_index = ending_index
+        ending_index += numSeconds
     
-#     return ans
+    return ans
         
 def computeEMA(buffer,windowSize,smoothingFactor,numSeconds):
 
@@ -732,12 +732,12 @@ def computePremiumExpected(actualValues, expectedValues, expectedSpotChanges, wi
     plotPremiumActual(expectedPremiums,actualValues, timeList, targetStrike, windowSize, timeGap, year, month, date, lenBefore, estimation_type, type)
     return expectedPremiums
 
-def ProfitorLossforaDay(expectedPremiums, actualSpots, expectedSpots, actualPremiums, expectedValues,timeGap, windowSize, brockerage, targetStrike, date, month, year, hourFrom, minuteFrom, secondFrom, hourTo, minuteTo, secondTo, greek_type, estimation_type, smoothingFactor):
+def ProfitorLossforaDay(expectedPremiums, actualSpots, expectedSpots, actualPremiums, expectedValues,timeGap, windowSize, optionType ,brockerage, targetStrike, date, month, year, hourFrom, minuteFrom, secondFrom, hourTo, minuteTo, secondTo, greek_type, estimation_type, smoothingFactor):
 
     timeList, lenBefore, lenAfter = getTimeList(year, month, date, hourTo, minuteTo, secondTo, hourFrom, minuteFrom , secondFrom, windowSize)
     
     # location = f"D:\\Desktop\\College Documents\\ProjectExtramarks2\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\Report_{greek_type}_{estimation_type}.csv"
-    location = f"X:\\NXBLOCK\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\Report_{greek_type}_{estimation_type}_{smoothingFactor}.csv"
+    location = f"X:\\NXBLOCK\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\Report_{greek_type}_{estimation_type}_{smoothingFactor}_{optionType}.csv"
 
     time_iter = lenBefore + timeGap
     end_iter = lenAfter
@@ -749,6 +749,7 @@ def ProfitorLossforaDay(expectedPremiums, actualSpots, expectedSpots, actualPrem
     while time_iter <= lenBefore + len(timeList)-timeGap:
         indiv_pnl = 0
         if( (abs(expectedPremiums[time_iter+timeGap].premium - actualPremiums[time_iter].price) / actualPremiums[time_iter].price) * 100  >100*brockerage):
+        # if( ((abs(expectedPremiums[time_iter+timeGap].premium - actualPremiums[time_iter].price) / actualPremiums[time_iter].price) * 100  >100*brockerage) and (0.7>=actualPremiums[time_iter + timeGap].delta >= 0.3 or -0.7<=actualPremiums[time_iter + timeGap].delta <= -0.3)):
             # expected pnl>0 ,  actual pnl>0
             if expectedPremiums[time_iter+timeGap].premium-actualPremiums[time_iter].price >= 0 and actualPremiums[time_iter+timeGap].price  - actualPremiums[time_iter].price  >= 0 :
                 indiv_pnl = (actualPremiums[time_iter+timeGap].price-actualPremiums[time_iter].price - brockerage*actualPremiums[time_iter].price)
@@ -999,13 +1000,13 @@ def computeGreeks(path, fileName, spotData, windowSize, timeGap, targetStrike, o
 
         print(f"Plotting for {estimation_type} {greek_use} smoothingFactor: {smoothingFactor}, {windowSize}_{timeGap}")
 
-        computePlotActual(actualValues, expectedValues, averageValues, windowSize, timeGap, targetStrike, hourFrom, minuteFrom, secondFrom, hourTo, minuteTo, secondTo, date, month, year, estimation_type, greek_use)
+        # computePlotAct ual(actualValues, expectedValues, averageValues, windowSize, timeGap, targetStrike, hourFrom, minuteFrom, secondFrom, hourTo, minuteTo, secondTo, date, month, year, estimation_type, greek_use)
 
-        computePlotError(actualValues, expectedValues, averageValues, windowSize, timeGap, targetStrike, hourFrom, minuteFrom, secondFrom, hourTo, minuteTo, secondTo, date, month, year, estimation_type, greek_use)                
+        # computePlotError(actualValues, expectedValues, averageValues, windowSize, timeGap, targetStrike, hourFrom, minuteFrom, secondFrom, hourTo, minuteTo, secondTo, date, month, year, estimation_type, greek_use)                
 
         expectedPremiums = computePremiumExpected(actualValues, expectedValues,  expectedSpotsChanges, windowSize, timeGap, targetStrike, hourFrom, minuteFrom, secondFrom, hourTo, minuteTo, secondTo, date, month, year,estimation_type, greek_use)
 
-        pnl = ProfitorLossforaDay(expectedPremiums, spotsActual, expectedSpotsChanges, actualValues, expectedValues,timeGap, windowSize, 0.01, targetStrike, date, month, year, hourFrom, minuteFrom, secondFrom, hourTo, minuteTo, secondTo, greek_use, estimation_type, smoothingFactor)
+        pnl = ProfitorLossforaDay(expectedPremiums, spotsActual, expectedSpotsChanges, actualValues, expectedValues,timeGap, windowSize, optionType,0.01, targetStrike, date, month, year, hourFrom, minuteFrom, secondFrom, hourTo, minuteTo, secondTo, greek_use, estimation_type, smoothingFactor)
 
         print("PNL: ", pnl)
         strikePnl = [targetStrike, pnl]
@@ -1034,7 +1035,6 @@ if __name__ == "__main__":
     spotData = load_json(spotPath)
     print("Spot JSON loaded ")
 
-
     # change path to save graphs and csv
     # --------------------------------------------------------------
     # windowSize = int(input("Size of window: "))
@@ -1052,18 +1052,19 @@ if __name__ == "__main__":
     # type of estimation for values
     # 1. estimation_type = "regress" ---> regression used to interpolate values atb t+5
     # 2. estimation_type = "simple" ---> average of changes used to interpolate values at t+5
+    # 3. estimation_type = "ema"  ---> expected moving average
     # --------------------------------------------------------------
     
-    for greek_use_i in ["predict"]:
-        for estimation_type_i in["ema"]:
+    for greek_use_i in ["now"]:
+        for estimation_type_i in["regress","ema"]:
             # targetStrike = 28700
-            for prev_windowSize in tqdm([20, 30]):
-                for timeGap in [2,5,10,20]:
+            for prev_windowSize in [30, 20, 18, 17,16, 15,13, 10, 5, 2]:
+                for timeGap in [2, 3, 10]:
                     optionType = "PE"
                     if(estimation_type_i == "ema"):
-                        for smoothingFactor in [0.5]:
-                            for targetStrike in [28500]:
+                        for smoothingFactor in [0.5, 1, 3]:
+                            for targetStrike in [29600]:
                                 computeGreeks(path, fileName, spotData, prev_windowSize, timeGap, targetStrike, optionType, smoothingFactor,date=1, month=12, year=2020, hourFrom=9, minuteFrom=15, secondFrom=0, hourTo=15, minuteTo=30, secondTo=0, estimation_type=estimation_type_i, greek_use=greek_use_i)
                     else:
-                        for targetStrike in [28500]:
+                        for targetStrike in [29600]:
                                 computeGreeks(path, fileName, spotData, prev_windowSize, timeGap, targetStrike, optionType, smoothingFactor=1,date=1, month=12, year=2020, hourFrom=9, minuteFrom=15, secondFrom=0, hourTo=15, minuteTo=30, secondTo=0, estimation_type=estimation_type_i, greek_use=greek_use_i)
