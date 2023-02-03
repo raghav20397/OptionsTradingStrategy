@@ -575,29 +575,29 @@ def plotValFit(windowSize,TimeGap,data,year,month,date,targetStrike):
         j+=1
         next_iter+=timedelta(seconds=1)
     
-def EMA_ra(arr,windowSize,smoothingFactor,timeGap):
+def EMA(arr,windowSize,b_Factor,timeGap):
 
-    coefficient_arr = [math.exp(i*0.1) for i in range(1, timeGap+1)]
+    coefficient_arr = [math.exp(i*b_Factor) for i in range(1, timeGap+1)]
 
     avg_buffer = []
-    if(windowSize - timeGap - timeGap >=1):
-        for i in range(0, windowSize - timeGap):
-            average_change=0
-            for j in range(0,timeGap):
-                average_change += (arr[i+j+1]-arr[i+j])*coefficient_arr[j]
-                average_change /= sum(coefficient_arr)
+# if(windowSize - timeGap - timeGap >=1):
+    for i in range(0, windowSize - timeGap):
+        average_change=0
+        for j in range(0,timeGap):
+            average_change += (arr[i+j+1]-arr[i+j])*coefficient_arr[j]
+            average_change /= sum(coefficient_arr)
 
-            avg_buffer.append(average_change)
-        # try:
-        fin = sum(avg_buffer)/len(avg_buffer)
-    else:
-        print("prev window size is big")
-        fin=0
+        avg_buffer.append(average_change)
+    # try:
+    fin = sum(avg_buffer)/len(avg_buffer)
+    # else:
+    #     print("prev window size is big")
+    #     fin=0
     # except:
     #     fin = 0
     return fin
 
-def EMA(arr,windowSize,smoothingFactor,numSeconds):
+def EMA_pr(arr,windowSize,smoothingFactor,numSeconds):
 
     beta = smoothingFactor/(windowSize+1)
 
@@ -743,7 +743,8 @@ def ProfitorLossforaDay(expectedPremiums, actualSpots, expectedSpots, actualPrem
     end_iter = lenAfter
     pnl = 0
     rows= []
-    rows.append(["time t","actual price at t",f"expected price at t + {timeGap}",f"actual price at t + {timeGap}","delta at t",f"expected delta at t+{timeGap}", f"actual delta at t + {timeGap}","spot at t",f"expected spot at t+{timeGap}",f"actual spot at t + {timeGap}",f"time t + {timeGap}", "trade pnl"])
+    rows.append(["time t","actual price at t",f"expected price at t + {timeGap}",f"actual price at t + {timeGap}","delta at t", f"actual delta at t + {timeGap}","spot at t",f"actual spot at t + {timeGap}",f"time t + {timeGap}", "trade pnl"])
+    # rows.append(["time t","actual price at t",f"expected price at t + {timeGap}",f"actual price at t + {timeGap}","delta at t",f"expected delta at t+{timeGap}", f"actual delta at t + {timeGap}","spot at t",f"expected spot at t+{timeGap}",f"actual spot at t + {timeGap}",f"time t + {timeGap}", "trade pnl"])
     
     p,q,r,s = 0,0,0,0
     while time_iter <= lenBefore + len(timeList)-timeGap:
@@ -778,7 +779,8 @@ def ProfitorLossforaDay(expectedPremiums, actualSpots, expectedSpots, actualPrem
                 s+=1
             
             # time t, actual price at t, delta at t, expected price at t + timeGap, actual at t + timeGap    
-            rows.append([actualPremiums[time_iter].time.strftime("%d/%m/%Y, %H:%M:%S"), actualPremiums[time_iter].price,    expectedPremiums[time_iter+timeGap].premium,   actualPremiums[time_iter+timeGap].price,     actualPremiums[time_iter].delta ,      expectedValues[time_iter+timeGap].delta ,    actualPremiums[time_iter+timeGap].delta,     actualSpots[time_iter].spot ,  expectedSpots[time_iter+timeGap].spot,  actualSpots[time_iter+timeGap].spot,    expectedPremiums[time_iter+timeGap].time.strftime("%d/%m/%Y, %H:%M:%S"), indiv_pnl])
+            # rows.append([actualPremiums[time_iter].time.strftime("%d/%m/%Y, %H:%M:%S"), actualPremiums[time_iter].price,    expectedPremiums[time_iter+timeGap].premium,   actualPremiums[time_iter+timeGap].price,     actualPremiums[time_iter].delta ,      expectedValues[time_iter+timeGap].delta ,    actualPremiums[time_iter+timeGap].delta,     actualSpots[time_iter].spot ,  expectedSpots[time_iter+timeGap].spot,  actualSpots[time_iter+timeGap].spot,    expectedPremiums[time_iter+timeGap].time.strftime("%d/%m/%Y, %H:%M:%S"), indiv_pnl])
+            rows.append([actualPremiums[time_iter].time.strftime("%d/%m/%Y, %H:%M:%S"), actualPremiums[time_iter].price,    expectedPremiums[time_iter+timeGap].premium,   actualPremiums[time_iter+timeGap].price,     actualPremiums[time_iter].delta ,       actualPremiums[time_iter+timeGap].delta,     actualSpots[time_iter].spot ,   actualSpots[time_iter+timeGap].spot,    expectedPremiums[time_iter+timeGap].time.strftime("%d/%m/%Y, %H:%M:%S"), indiv_pnl])
 
         time_iter+=1
     try:
@@ -790,7 +792,7 @@ def ProfitorLossforaDay(expectedPremiums, actualSpots, expectedSpots, actualPrem
     loss_i = 0 
     for i in range(1, len(rows)):
         row=rows[i]
-        if float(row[11]) >= 0:
+        if float(row[9]) >= 0:
             profit_i +=1
         else:
             loss_i +=1
@@ -1056,15 +1058,15 @@ if __name__ == "__main__":
     # --------------------------------------------------------------
     
     for greek_use_i in ["now"]:
-        for estimation_type_i in["regress","ema"]:
+        for estimation_type_i in["ema"]:
             # targetStrike = 28700
-            for prev_windowSize in [30, 20, 18, 17,16, 15,13, 10, 5, 2]:
-                for timeGap in [2, 3, 10]:
+            for prev_windowSize in [ 3, 4, 5,6]:
+                for timeGap in [2]:
                     optionType = "PE"
                     if(estimation_type_i == "ema"):
-                        for smoothingFactor in [0.5, 1, 3]:
-                            for targetStrike in [29600]:
+                        for smoothingFactor in [0.35,0.45]:
+                            for targetStrike in [27900, 28000, 28500, 29000, 29200, 29500, 29600, 28400]:
                                 computeGreeks(path, fileName, spotData, prev_windowSize, timeGap, targetStrike, optionType, smoothingFactor,date=1, month=12, year=2020, hourFrom=9, minuteFrom=15, secondFrom=0, hourTo=15, minuteTo=30, secondTo=0, estimation_type=estimation_type_i, greek_use=greek_use_i)
                     else:
-                        for targetStrike in [29600]:
+                        for targetStrike in [28500]:
                                 computeGreeks(path, fileName, spotData, prev_windowSize, timeGap, targetStrike, optionType, smoothingFactor=1,date=1, month=12, year=2020, hourFrom=9, minuteFrom=15, secondFrom=0, hourTo=15, minuteTo=30, secondTo=0, estimation_type=estimation_type_i, greek_use=greek_use_i)
