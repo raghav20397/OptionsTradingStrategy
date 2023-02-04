@@ -1029,7 +1029,7 @@ def computeGreeks(path, fileName, spotData, windowSize, timeGap, targetStrike, o
 if __name__ == "__main__":
     # path = "D:\\Desktop\\College Documents\\ProjectExtramarks2\\OptionsTradingStrategy"
     path = "X:\\NXBLOCK\\OptionsTradingStrategy"
-    fileName = "1.pkl"
+    fileName = "14.pkl"
 
     # spotPath = "D:\\Desktop\\College Documents\\ProjectExtramarks2\\OptionsTradingStrategy\\BANKNIFTY_spot_seconds_till_2022_10_12.json"
     spotPath = "X:\\NXBLOCK\\BANKNIFTY_spot_seconds_till_2022_10_12.json"
@@ -1060,13 +1060,13 @@ if __name__ == "__main__":
     for greek_use_i in ["now"]:
         for estimation_type_i in["ema"]:
             # targetStrike = 28700
-            for prev_windowSize in [ 3, 4, 5,6]:
+            for prev_windowSize in [ 3, 6]:
                 for timeGap in [2]:
                     optionType = "PE"
                     if(estimation_type_i == "ema"):
-                        for smoothingFactor in [0.35,0.45]:
-                            for targetStrike in [27900, 28000, 28500, 29000, 29200, 29500, 29600, 28400]:
-                                computeGreeks(path, fileName, spotData, prev_windowSize, timeGap, targetStrike, optionType, smoothingFactor,date=1, month=12, year=2020, hourFrom=9, minuteFrom=15, secondFrom=0, hourTo=15, minuteTo=30, secondTo=0, estimation_type=estimation_type_i, greek_use=greek_use_i)
+                        for smoothingFactor in [0.01, 0.03, 0.3, 0.4]:
+                            for targetStrike in [28800, 28900, 29000]:
+                                computeGreeks(path, fileName, spotData, prev_windowSize, timeGap, targetStrike, optionType, smoothingFactor,date=14, month=3, year=2019, hourFrom=9, minuteFrom=15, secondFrom=0, hourTo=15, minuteTo=30, secondTo=0, estimation_type=estimation_type_i, greek_use=greek_use_i)
                     else:
                         for targetStrike in [28500]:
                                 computeGreeks(path, fileName, spotData, prev_windowSize, timeGap, targetStrike, optionType, smoothingFactor=1,date=1, month=12, year=2020, hourFrom=9, minuteFrom=15, secondFrom=0, hourTo=15, minuteTo=30, secondTo=0, estimation_type=estimation_type_i, greek_use=greek_use_i)
