@@ -1,33 +1,10 @@
-def averageofArray(arr):
+:
+    for i in range(0, windowSize - timeGap):
+        average_change=0
+        for j in range(0,timeGap):
+            average_change += (arr[i+j+1]-arr[i+j])*coefficient_arr[j]
+            average_change /= sum(coefficient_arr)
 
-    return sum(arr)/len(arr)
-
-def EMA(arr,windowSize,smoothingFactor,numSeconds):
-
-    beta = smoothingFactor/(windowSize+1)
-
-    ans = 0
-    prev_ema = 0
-
-    starting_index = 0
-    ending_index = numSeconds
-
-    for i in range(0,windowSize/numSeconds):
-
-        # curr_val = averageofArray(arr[starting_index:ending_index])
-        curr_val = arr[ending_index-1] - arr[starting_index]
-        ans+=beta*curr_val+(1-beta)*prev_ema
-        prev_ema = ans
-        starting_index = ending_index
-        ending_index += numSeconds
-    
-    return ans
-
-
-A = []
-
-for i in range(1,21):
-    A.append(i)
-
-X = EMA(A,20,2,5)
-print(X)
+        avg_buffer.append(average_change)
+    # try:
+    fin = sum(avg_buffer)/len(avg_buffer)

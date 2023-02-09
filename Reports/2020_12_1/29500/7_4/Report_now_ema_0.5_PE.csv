@@ -1,0 +1,2 @@
+time t,actual price at t,expected price at t + 4,actual price at t + 4,delta at t,actual delta at t + 4,spot at t,actual spot at t + 4,time t + 4,trade pnl,    , Total PnL:
+"01/12/2020, 12:28:23",288.35,291.6785721625244,279.2,-0.40781240650176187,-0.3998832531578955,29691.45,29710.35,"01/12/2020, 12:28:27",-12.033500000000034,    ,-12.033500000000034
