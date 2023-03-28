@@ -1411,8 +1411,8 @@ if __name__ == "__main__":
                 for greek_use_i in ["now"]:
                     for estimation_type_i in["ema"]:
                         # targetStrike = 28700
-                        for prev_windowSize in [ 5]:
-                            for timeGap in [3]:
+                        for prev_windowSize in [ 3]:
+                            for timeGap in [2]:
                                 optionType = "PE"
                                 # optionType = input('Enter the option type (in caps):')
                                 # optionType = "PE"

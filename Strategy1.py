@@ -1132,6 +1132,7 @@ if __name__ == "__main__":
 
     # spotPath = "C:\\Users\\User\\Desktop\\op_strat_raghav_prakrit\\BANKNIFTY_spot_seconds_till_2022_10_12.json"
     spotPath = "X:\\NXBLOCK\\BANKNIFTY_spot_seconds_till_2022_10_12.json"
+    
     print("Spot JSON loading..")
     spotData = load_json(spotPath)
     print("Spot JSON loaded ")
