@@ -713,7 +713,7 @@ def plotPremiumError(exptectedPremiums, actualValues, timeList, targetStrike, wi
     pyplot.savefig(location + f"{parameter} ErrorChart", bbox_inches="tight")
     pyplot.close()
 
-def computePremiumExpected(actualValues, expectedValues, expectedSpotChanges, windowSize, timeGap, targetStrike,hourFrom, minuteFrom, secondFrom, hourTo, minuteTo, secondTo, date, month, year, estimation_type,type="now"):
+def ccomputePremiumExpectedDelta(actualValues, expectedValues, expectedSpotChanges, windowSize, timeGap, targetStrike,hourFrom, minuteFrom, secondFrom, hourTo, minuteTo, secondTo, date, month, year, estimation_type,type="now"):
     expectedPremiums = []
 
     timeList, lenBefore, lenAfter = getTimeList(year, month, date, hourTo, minuteTo, secondTo, hourFrom, minuteFrom, secondFrom, windowSize)
@@ -1197,7 +1197,7 @@ def computeGreeks(grk, pathoriginal,pathtocreate,fileName, spotData, windowSize,
             pnl = ProfitorLossforaDay(grk, pathtocreate,expectedPremiumsvega, imp_vpairs, expectedImpVChanges,spotsActual, expectedSpotsChanges, actualValues, expectedValues,timeGap, windowSize, optionType,0.01, targetStrike, date, month, year, hourFrom, minuteFrom, secondFrom, hourTo, minuteTo, secondTo, greek_use, estimation_type, smoothingFactor)
         
         if(grk == "delta"):
-            expectedPremiums = computePremiumExpected(actualValues, expectedValues,  expectedSpotsChanges, windowSize, timeGap, targetStrike, hourFrom, minuteFrom, secondFrom, hourTo, minuteTo, secondTo, date, month, year,estimation_type, greek_use)
+            expectedPremiums = ccomputePremiumExpectedDelta(actualValues, expectedValues,  expectedSpotsChanges, windowSize, timeGap, targetStrike, hourFrom, minuteFrom, secondFrom, hourTo, minuteTo, secondTo, date, month, year,estimation_type, greek_use)
             pnl = ProfitorLossforaDay(grk, pathtocreate,expectedPremiums, imp_vpairs, expectedImpVChanges,spotsActual, expectedSpotsChanges, actualValues, expectedValues,timeGap, windowSize, optionType,0.01, targetStrike, date, month, year, hourFrom, minuteFrom, secondFrom, hourTo, minuteTo, secondTo, greek_use, estimation_type, smoothingFactor)
 
         print("PNL: ", pnl)
@@ -1254,6 +1254,7 @@ if __name__ == "__main__":
     # pathtocreate = "D:\\College Documents\\ExtramarksOptionsTrading\\OptionsTradingStrategy\\Reports" # add the path
     pathtocreate = "X:\\NXBLOCK\\OptionsTradingStrategy\\AllReports" # add the path
     monthtonum = {'JAN':1,'FEB':2,'MAR':3,'APR':4,'MAY':5,'JUN':6,'JUL':7,'AUG':8,'SEP':9,'OCT':10,'NOV':11,'DEC':12}
+
     # change path to save graphs and csv
     # --------------------------------------------------------------
     # windowSize = int(input("Size of window: "))
@@ -1321,18 +1322,3 @@ if __name__ == "__main__":
 
 
 
-    # for greek_use_i in ["now"]:
-    #     for estimation_type_i in["ema"]:
-    #         # targetStrike = 28700
-    #         for prev_windowSize in [ 3, 6]:
-    #             for timeGap in [2]:
-    #                 optionType = input('Enter the option type (in caps):')
-    #                 # optionType = "PE"
-    #                 strikePrices = getStrikePrices()
-    #                 if(estimation_type_i == "ema"):
-    #                     for smoothingFactor in [0.01, 0.03, 0.3, 0.4]:
-    #                         for targetStrike in [30000.0,30800.0,31000.0,31300.0,31500.0]:
-    #                             computeGreeks(path, fileName, spotData, prev_windowSize, timeGap, targetStrike, optionType, smoothingFactor,date=14, month=3, year=2019, hourFrom=9, minuteFrom=15, secondFrom=0, hourTo=15, minuteTo=30, secondTo=0, estimation_type=estimation_type_i, greek_use=greek_use_i)
-    #                 else:
-    #                     for targetStrike in [30000.0]:
-    #                             computeGreeks(path, fileName, spotData, prev_windowSize, timeGap, targetStrike, optionType, smoothingFactor=1,date=1, month=12, year=2020, hourFrom=9, minuteFrom=15, secondFrom=0, hourTo=15, minuteTo=30, secondTo=0, estimation_type=estimation_type_i, greek_use=greek_use_i)
