@@ -1303,15 +1303,15 @@ if __name__ == "__main__":
                                         pg_list = []
                                         pnl_fac = 0
                                         for targetStrike in strikePrices:
-                                            pnl, pg = computeGreeks(grk, pathtopkl+"\\"+year+"\\"+month,pathtocreate,date, spotData, prev_windowSize, timeGap, targetStrike, optionType, smoothingFactor,dateNum, monthNum, yearNum, hourFrom=9, minuteFrom=15, secondFrom=0, hourTo=15, minuteTo=30, secondTo=0, estimation_type=estimation_type_i, greek_use=greek_use_i)
+                                            pnl, hit_rate = computeGreeks(grk, pathtopkl+"\\"+year+"\\"+month,pathtocreate,date, spotData, prev_windowSize, timeGap, targetStrike, optionType, smoothingFactor,dateNum, monthNum, yearNum, hourFrom=9, minuteFrom=15, secondFrom=0, hourTo=15, minuteTo=30, secondTo=0, estimation_type=estimation_type_i, greek_use=greek_use_i)
                                             pnl_fac += pnl
-                                            pg_list.append(pg)
+                                            pg_list.append(hit_rate)
                                         
-                                        av_pg = sum(pg_list)/len(pg_list)
+                                        av_hitrate = sum(pg_list)/len(pg_list)
 
                                         location1 =  pathtocreate + "\\" + f"{year}" +"\\"+ f"{monthtonum[month]}" +"\\"+f"{date[:-4]}"+ "\\" +f"{estimation_type_i}_{greek_use_i}_{grk}_DayReport.txt"
                                         file = open(location1, "a")
-                                        file.write(f"{prev_windowSize}_{timeGap} " + f"{optionType} " +f"{smoothingFactor} "+"----> " + str(pnl_fac) + " "+ "Average hit rate = " + " " + str(av_pg) +"\n" )
+                                        file.write(f"{prev_windowSize}_{timeGap} " + f"{optionType} " +f"{smoothingFactor} "+"----> " + str(pnl_fac) + " "+ "Average hit rate = " + " " + str(av_hitrate) +"\n" )
                                         file.close()
                                     
 
