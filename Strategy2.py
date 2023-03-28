@@ -1204,7 +1204,6 @@ def computeGreeks(grk, pathoriginal,pathtocreate,fileName, spotData, windowSize,
         strikePnl = [targetStrike, pnl]
 
         # plotValFit(windowSize,timeGap,spotData,year,month,date,targetStrike)
-
         # location1 = f"D:\\Desktop\\College Documents\\ProjectExtramarks2\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{greek_use}_{estimation_type}_strikeReports.txt "
         # location1 = f"X:\\NXBLOCK\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{greek_use}_{estimation_type}_strikeReports.txt "
 

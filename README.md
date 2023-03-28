@@ -1,2 +1,2 @@
 # OptionsTradingStrategy
- Implementation of new options trading straegy using momentum based indicators
+ Implementation of new options trading strategy using momentum based indicators.
