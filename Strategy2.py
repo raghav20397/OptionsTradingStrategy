@@ -741,8 +741,8 @@ def computePremiumExpected(actualValues, expectedValues, expectedSpotChanges, wi
     # plotPremiumActual(expectedPremiums,actualValues, timeList, targetStrike, windowSize, timeGap, year, month, date, lenBefore, estimation_type, type)
     return expectedPremiums
 
-
-def computePremiumExpected2(actualValues, expectedValues, expectedImpVChanges, windowSize, timeGap, targetStrike,hourFrom, minuteFrom, secondFrom, hourTo, minuteTo, secondTo, date, month, year, estimation_type,type="now"):
+#expected premiums for vega 
+def computePremiumExpectedVega(actualValues, expectedValues, expectedImpVChanges, windowSize, timeGap, targetStrike,hourFrom, minuteFrom, secondFrom, hourTo, minuteTo, secondTo, date, month, year, estimation_type,type="now"):
     expectedPremiums = []
 
     timeList, lenBefore, lenAfter = getTimeList(year, month, date, hourTo, minuteTo, secondTo, hourFrom, minuteFrom, secondFrom, windowSize)
@@ -814,120 +814,6 @@ def computeExpectedImpvChanges(actualImpvs,windowSize,timeGap,year,month,day,typ
 
     return PredictedImpVChanges
 
-# def ProfitorLossforaDay(pathtocreate,expectedPremiums, actualSpots, expectedSpots, actualPremiums, expectedValues,timeGap, windowSize, optionType ,brockerage, targetStrike, date, month, year, hourFrom, minuteFrom, secondFrom, hourTo, minuteTo, secondTo, greek_type, estimation_type, smoothingFactor):
-
-#     timeList, lenBefore, lenAfter = getTimeList(year, month, date, hourTo, minuteTo, secondTo, hourFrom, minuteFrom , secondFrom, windowSize)
-    
-#     # location = f"D:\\Desktop\\College Documents\\ProjectExtramarks2\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\Report_{greek_type}_{estimation_type}.csv"
-#     # location = f"X:\\NXBLOCK\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\Report_{greek_type}_{estimation_type}_{smoothingFactor}_{optionType}.csv"
-    
-#     os.chdir(pathtocreate)
-#     location = pathtocreate +"\\"+str(year)
-#     if(os.path.exists(location)==False):
-#         os.mkdir(location)
-#     os.chdir(location)
-
-#     location += "\\"+str(month)
-#     if(os.path.exists(location)==False):
-#         os.mkdir(location)
-#     os.chdir(location)
-
-#     location += "\\"+str(date)
-#     if(os.pdefath.exists(location)==False):
-#         os.mkdir(location)
-
-#     location += "\\"+str(targetStrike)
-#     if(os.path.exists(location)==False):
-#         os.mkdir(location)
-
-#     location += "\\" + f"{windowSize}_{timeGap}" +"\\"
-#     if(os.path.exists(location)==False):
-#         os.mkdir(location)
-
-#     # if "Reports" not in os.listdir():
-#     #     location += "\\Reports"
-#     #     os.mkdir(location)
-
-#     # os.chdir(pathtocreate+"\\"+str(year)+"\\"+str(month)+"\\"+str(date)+"\\Reports")
-#     os.chdir(location)
-#     # location = pathtocreate+"\\"+str(year)+"\\"+str(month)+"\\"+str(date)+"\\"
-#     location = f"Report_{greek_type}_{estimation_type}_{smoothingFactor}_{optionType}.csv"
-#     time_iter = lenBefore + timeGap
-#     end_iter = lenAfter
-#     pnl = 0
-#     rows= []
-#     rows.append(["time t","actual price at t",f"expected price at t + {timeGap}",f"actual price at t + {timeGap}","delta at t", f"actual delta at t + {timeGap}","spot at t",f"actual spot at t + {timeGap}",f"time t + {timeGap}", "trade pnl"])
-#     # rows.append(["time t","actual price at t",f"expected price at t + {timeGap}",f"actual price at t + {timeGap}","delta at t",f"expected delta at t+{timeGap}", f"actual delta at t + {timeGap}","spot at t",f"expected spot at t+{timeGap}",f"actual spot at t + {timeGap}",f"time t + {timeGap}", "trade pnl"])
-    
-#     p,q,r,s = 0,0,0,0
-#     while time_iter <= lenBefore + len(timeList)-timeGap:
-#         indiv_pnl = 0
-#         # print(len(expectedPremiums), time_iter+timeGap)
-#         if time_iter+timeGap< len(expectedPremiums):
-#             if( (abs(expectedPremiums[time_iter+timeGap].premium - actualPremiums[time_iter].price) / actualPremiums[time_iter].price) * 100  >100*brockerage):
-#             # if( ((abs(expectedPremiums[time_iter+timeGap].premium - actualPremiums[time_iter].price) / actualPremiums[time_iter].price) * 100  >100*brockerage) and (0.7>=actualPremiums[time_iter + timeGap].delta >= 0.3 or -0.7<=actualPremiums[time_iter + timeGap].delta <= -0.3)):
-#                 # expected pnl>0 ,  actual pnl>0
-#                 if expectedPremiums[time_iter+timeGap].premium-actualPremiums[time_iter].price >= 0 and actualPremiums[time_iter+timeGap].price  - actualPremiums[time_iter].price  >= 0 :
-#                     indiv_pnl = (actualPremiums[time_iter+timeGap].price-actualPremiums[time_iter].price )
-#                     # indiv_pnl = expectedSpots[time_iter + timeGap]-(actualPremiums[time_iter].strike)-actualPremiums[time_iter].price - brockerage*actualPremiums[time_iter].price)
-
-#                     pnl += indiv_pnl
-#                     p +=1
-                
-#                 # expected pnl>0 ,  actual pnl<0
-#                 elif expectedPremiums[time_iter+timeGap].premium-actualPremiums[time_iter].price  >= 0 and actualPremiums[time_iter+timeGap].price  - actualPremiums[time_iter].price  <= 0:
-#                     indiv_pnl = -1*(actualPremiums[time_iter].price - actualPremiums[time_iter+timeGap].price )
-#                     pnl += indiv_pnl
-#                     q+=1
-                
-#                 # expected pnl<0 ,  actual pnl<0
-#                 elif expectedPremiums[time_iter+timeGap].premium - actualPremiums[time_iter].price  <= 0 and actualPremiums[time_iter+timeGap].price  - actualPremiums[time_iter].price  <= 0:
-#                     indiv_pnl = (actualPremiums[time_iter].price-actualPremiums[time_iter+timeGap].price )
-#                     pnl += indiv_pnl
-#                     r+=1
-
-#                 # expected pnl<0 ,  actual pnl>0
-#                 # predicted decrease, actually increases
-#                 elif expectedPremiums[time_iter+timeGap].premium - actualPremiums[time_iter].price  <= 0 and actualPremiums[time_iter+timeGap].price - actualPremiums[time_iter].price  >= 0:
-#                     indiv_pnl =-1*(actualPremiums[time_iter+timeGap].price-actualPremiums[time_iter].price )
-#                     pnl += indiv_pnl
-#                     s+=1
-                
-#                 # time t, actual price at t, delta at t, expected price at t + timeGap, actual at t + timeGap    
-#                 # rows.append([actualPremiums[time_iter].time.strftime("%d/%m/%Y, %H:%M:%S"), actualPremiums[time_iter].price,    expectedPremiums[time_iter+timeGap].premium,   actualPremiums[time_iter+timeGap].price,     actualPremiums[time_iter].delta ,      expectedValues[time_iter+timeGap].delta ,    actualPremiums[time_iter+timeGap].delta,     actualSpots[time_iter].spot ,  expectedSpots[time_iter+timeGap].spot,  actualSpots[time_iter+timeGap].spot,    expectedPremiums[time_iter+timeGap].time.strftime("%d/%m/%Y, %H:%M:%S"), indiv_pnl])
-#                 rows.append([actualPremiums[time_iter].time.strftime("%d/%m/%Y, %H:%M:%S"), actualPremiums[time_iter].price,    expectedPremiums[time_iter+timeGap].premium,   actualPremiums[time_iter+timeGap].price,     actualPremiums[time_iter].delta ,       actualPremiums[time_iter+timeGap].delta,     actualSpots[time_iter].spot ,   actualSpots[time_iter+timeGap].spot,    expectedPremiums[time_iter+timeGap].time.strftime("%d/%m/%Y, %H:%M:%S"), indiv_pnl])
-
-#         time_iter+=1
-#     try:
-#         rows[0].extend([ "    "," Total PnL:"])
-#         rows[1].extend([ "    ",pnl])
-#     except:
-#         pass
-#     profit_i = 0
-#     loss_i = 0 
-#     for i in range(1, len(rows)):
-#         row=rows[i]
-#         if float(row[9]) >= 0:
-#             profit_i +=1
-#         else:
-#             loss_i +=1
-#     try:
-#         rows[3].extend(["   ","positive:",profit_i])
-#         rows[4].extend(["   ","negative:",loss_i])
-#         rows[6].extend(["   ","EPAP:",p])
-#         rows[7].extend(["   ","EPAL:",q])
-#         rows[8].extend(["   ","ELAP:",s])
-#         rows[9].extend(["   ","ELAL:",r])
-#     except:
-#         pass
-
-#     # if(os.path.exists(location)==False):
-#     #     os.mkdir(location)
-
-#     with open(location  , "w", newline="") as f:
-#         writer = csv.writer(f)
-#         writer.writerows(rows)
-#     return pnl
 
 def ProfitorLossforaDay(grk, pathtocreate,expectedPremiums, actualImpVs, expectedImpVs, actualSpots, expectedSpots, actualPremiums, expectedValues,timeGap, windowSize, optionType ,brockerage, targetStrike, date, month, year, hourFrom, minuteFrom, secondFrom, hourTo, minuteTo, secondTo, greek_type, estimation_type, smoothingFactor):
 
@@ -1187,7 +1073,7 @@ def computeGreeks(grk, pathoriginal,pathtocreate,fileName, spotData, windowSize,
                                 windowBuffer.pop(0)
                                 windowBuffer.append(secondEquivalent)
                         else:         
-                            # print(trade_time)
+
                             # if there was no contract available for that time with given 
                             # strike and type then we just duplicate and push the last found contract (assumption)
                             if len(windowBuffer) < windowSize:       
@@ -1274,7 +1160,6 @@ def computeGreeks(grk, pathoriginal,pathtocreate,fileName, spotData, windowSize,
                     k+=1
                 # print("Some data was missing")
             i+=1
-        # print(len(actualValues), len(expectedValues), len(averageValues))
         expectedValues = e
 
         spotsActual = []
@@ -1284,11 +1169,6 @@ def computeGreeks(grk, pathoriginal,pathtocreate,fileName, spotData, windowSize,
         
         expectedSpotsChanges, spotsActual = computeExpectedSpotChanges(year, month, date, spotData, windowSize, timeGap, estimation_type, smoothingFactor)
         expectedImpVChanges = computeExpectedImpvChanges(imp_vpairs,windowSize,timeGap,year,month,date,'ema')
-        # print(len(imp_vpairs),print(spotsActual))
-        # print(len(expectedImpVChanges),len(expectedSpotsChanges))
-        # for i in range(15):
-            # print(imp_vpairs[i].time,imp_vpairs[i].imp_v,expectedImpVChanges[i].time,expectedImpVChanges[i].imp_v)
-        
 
         spotsActual = spotsActual[windowSize - 1:]
         imp_vpairs = imp_vpairs[windowSize - 1:]
@@ -1313,7 +1193,7 @@ def computeGreeks(grk, pathoriginal,pathtocreate,fileName, spotData, windowSize,
         # grk = "vega"
                 
         if(grk == "vega"):
-            expectedPremiumsvega = computePremiumExpected2(actualValues,expectedValues,expectedImpVChanges,windowSize,timeGap,targetStrike,hourFrom,minuteFrom,secondFrom,hourTo,minuteTo,secondTo,date,month,year,estimation_type,greek_use)
+            expectedPremiumsvega = computePremiumExpectedVega(actualValues,expectedValues,expectedImpVChanges,windowSize,timeGap,targetStrike,hourFrom,minuteFrom,secondFrom,hourTo,minuteTo,secondTo,date,month,year,estimation_type,greek_use)
             pnl = ProfitorLossforaDay(grk, pathtocreate,expectedPremiumsvega, imp_vpairs, expectedImpVChanges,spotsActual, expectedSpotsChanges, actualValues, expectedValues,timeGap, windowSize, optionType,0.01, targetStrike, date, month, year, hourFrom, minuteFrom, secondFrom, hourTo, minuteTo, secondTo, greek_use, estimation_type, smoothingFactor)
         
         if(grk == "delta"):
