@@ -875,6 +875,7 @@ def ProfitorLossforaDay(grk, pathtocreate,expectedPremiums, actualImpVs, expecte
         indiv_pnl = 0
         # print(len(expectedPremiums), time_iter+timeGap)
         if time_iter+timeGap< len(expectedPremiums):
+            # slippage of 2%
             if( (abs(expectedPremiums[time_iter+timeGap].premium - actualPremiums[time_iter].price) / actualPremiums[time_iter].price) * 100  >100*0.02):
             # if( ((abs(expectedPremiums[time_iter+timeGap].premium - actualPremiums[time_iter].price) / actualPremiums[time_iter].price) * 100  >100*brockerage) and (0.7>=actualPremiums[time_iter + timeGap].delta >= 0.3 or -0.7<=actualPremiums[time_iter + timeGap].delta <= -0.3)):
                 # expected pnl>0 ,  actual pnl>0, brock -
@@ -917,8 +918,10 @@ def ProfitorLossforaDay(grk, pathtocreate,expectedPremiums, actualImpVs, expecte
         rows[1].extend([ "    ",pnl])
     except:
         pass
+
     profit_i = 0
     loss_i = 0 
+
     for i in range(1, len(rows)):
         row=rows[i]
         if float(row[9]) >= 0:
@@ -967,6 +970,34 @@ def getStrikePrices(path,optionType,year,month,day):
     
 
     return strikePrices
+
+def csvformonth(pathtocreate, dictPnL,dictHitRate,year,month,estimationType,windowSize,timeGap,optionType):
+    os.chdir(pathtocreate)
+    location = pathtocreate +"\\"+str(year) + "\\" + str(month)
+    # if(os.path.exists(location)==False):
+    #     os.mkdir(location)
+    # os.chdir(location)
+
+    # location += "\\"+str(month)
+    # if(os.path.exists(location)==False):
+    #     os.mkdir(location)
+    # os.chdir(location)
+
+    filename = f"{estimationType}_{str(windowSize)}_{str(timeGap)}_{optionType}.csv"
+    # pathforfile = "D:\\College Documents\\ExtramarksOptionsTrading\\OptionsTradingStrategy\\Reports\\"+year+"\\"+month+"\\"
+    rows = []
+    rows.append(['Smoothing Factor','PnL','Average Hit rate'])
+
+    for key in dictPnL.keys():
+        row = []
+        row.append(key)
+        row.append(dictPnL[key])
+        row.append(dictHitRate[key])
+        rows.append(row)
+
+    with open(location + "\\" +filename  , "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerows(rows)
 
 def computeGreeks(grk, pathoriginal,pathtocreate,fileName, spotData, windowSize, timeGap, targetStrike, optionType, smoothingFactor,date=1, month=12, year=2020, hourFrom=9, minuteFrom=15, secondFrom=00, hourTo=15, minuteTo=30, secondTo=00, estimation_type="simple", greek_use="predict"):
     # loading the pickle data
@@ -1277,13 +1308,24 @@ if __name__ == "__main__":
 
     grk = "delta"
 
+    smoothingFactors = [0.01, 0.03, 0.3, 0.4]
+    
     for year in os.listdir():
         os.chdir(pathtopkl+"\\"+year)
         yearNum = int(year)
+        e_type_report = ""
+        w_size_report = 0
+        t_gap_report = 0
+        op_type_report = ""
         for month in os.listdir():
             os.chdir(pathtopkl+'\\'+year+'\\'+month)
             monthNum = monthtonum[month]
-            month_pnl = 0
+            month_pnl = dict()
+            hitrates_fac = dict()
+            for sf in smoothingFactors:
+                month_pnl[sf] = 0
+                hitrates_fac[sf] = []
+            # {factor : pnl, factor2 : pnl2, factor3:pnl3}
             for date in os.listdir():
                 # os.chdir(pathtopkl+"\\"+year+"\\"+month+"\\"+date)
                 dateNum = int(date[:-4])
@@ -1291,15 +1333,20 @@ if __name__ == "__main__":
                 for greek_use_i in ["now"]:
                     for estimation_type_i in["ema"]:
                         # targetStrike = 28700
-                        for prev_windowSize in [ 3]:
+                        for prev_windowSize in [3]:
                             for timeGap in [2]:
                                 optionType = "PE"
+
+                                e_type_report = estimation_type_i
+                                w_size_report = prev_windowSize
+                                t_gap_report = timeGap
+                                op_type_report = optionType
                                 # optionType = input('Enter the option type (in caps):')
                                 # optionType = "PE"
                                 strikePrices = getStrikePrices(date,optionType,yearNum,monthNum,dateNum)
                                 if(estimation_type_i == "ema"):
                                     
-                                    for smoothingFactor in [0.01, 0.03, 0.3, 0.4]:
+                                    for smoothingFactor in smoothingFactors:
                                         pg_list = []
                                         pnl_fac = 0
                                         for targetStrike in strikePrices:
@@ -1308,7 +1355,12 @@ if __name__ == "__main__":
                                             pg_list.append(hit_rate)
                                         
                                         av_hitrate = sum(pg_list)/len(pg_list)
+                                        #for month stats
+                                        month_pnl
+                                        month_pnl[smoothingFactor] += pnl_fac
+                                        hitrates_fac[smoothingFactor].append(av_hitrate)
 
+                                        #text file
                                         location1 =  pathtocreate + "\\" + f"{year}" +"\\"+ f"{monthtonum[month]}" +"\\"+f"{date[:-4]}"+ "\\" +f"{estimation_type_i}_{greek_use_i}_{grk}_DayReport.txt"
                                         file = open(location1, "a")
                                         file.write(f"{prev_windowSize}_{timeGap} " + f"{optionType} " +f"{smoothingFactor} "+"----> " + str(pnl_fac) + " "+ "Average hit rate = " + " " + str(av_hitrate) +"\n" )
@@ -1318,6 +1370,10 @@ if __name__ == "__main__":
                                 else:
                                     for targetStrike in [30000]:
                                             computeGreeks(grk, pathtopkl+"\\"+year+"\\"+month+"\\"+date,pathtocreate,date, spotData, prev_windowSize, timeGap, targetStrike, optionType, smoothingFactor,dateNum, monthNum, yearNum, hourFrom=9, minuteFrom=15, secondFrom=0, hourTo=15, minuteTo=30, secondTo=0, estimation_type=estimation_type_i, greek_use=greek_use_i)
-
-
+            for sf in smoothingFactors:
+                av_hitrat = sum(hitrates_fac[sf])/len(hitrates_fac[sf])
+                hitrates_fac[sf] = av_hitrat
+            csvformonth(pathtocreate, month_pnl,hitrates_fac,year,monthtonum[month],e_type_report,w_size_report,t_gap_report,op_type_report)
+    # print(month_pnl)
+    # print(hitrates_fac)
 
