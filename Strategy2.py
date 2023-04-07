@@ -230,8 +230,7 @@ def plotForParameter(parameter, actualValues, expectedValues, averageValues, tim
         Av = [av.rho for av in averageValues]
     
     #change path here
-    location = f"D:\\Desktop\\College Documents\\ProjectExtramarks2\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\{stry}\\{type1}_{estimation_type}\\"
-    # location = f"X:\\NXBLOCK\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\{stry}\\{type1}_{estimation_type}\\"
+    location = f"X:\\NXBLOCK\\OptionsTradingStrategy\\AllReports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\{stry}\\{type1}_{estimation_type}\\"
     
     # print(location)
     j=0
@@ -244,7 +243,6 @@ def plotForParameter(parameter, actualValues, expectedValues, averageValues, tim
     except OSError as error:
         j+=1
         # print(error)
-    # location = f"X:\\NXBLOCK\\Reports\\{targetStrike}_{windowSize}_{timeGap}_{year}_{month}_{date}_{str}\\"
 
     # print(lenBefore, lenAfter, len(timeList), (lenBefore+lenAfter+len(timeList)-len(Ac))==0 )
     pyplot.plot(timeList[timeGap+5:], Ac[lenBefore+timeGap+5: lenBefore + len(timeList)], linestyle = "dashed", label = f"Actual {parameter} Values")
@@ -304,8 +302,7 @@ def plotForParameterError(parameter, actualValues, expectedValues, averageValues
         
     #change path here
 
-    # location = f"X:\\NXBLOCK\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\{stry}\\{type1}_{estimation_type}\\"
-    location = f"D:\\Desktop\\College Documents\\ProjectExtramarks2\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\{stry}\\{type1}_{estimation_type}\\"
+    location = f"X:\\NXBLOCK\\AllReports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\{stry}\\{type1}_{estimation_type}\\"
     j=0
     try:    
         if(os.path.exists(location)):
@@ -493,10 +490,8 @@ def plotPremiumActual(exptectedPremiums, actualValues,timeList, targetStrike, wi
     type1 = str(type1)
     stry="actual"
     parameter="Premium"
-    location = f"X:\\NXBLOCK\\OptionsTradingStrategy\\Reports\\{targetStrike}_{windowSize}_{timeGap}_{year}_{month}_{date}_{str}\\"
-    # location = f"X:\\NXBLOCK\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\{stry}\\{type1}_{estimation_type}\\"
+    location = f"X:\\NXBLOCK\\OptionsTradingStrategy\\AllReports\\{targetStrike}_{windowSize}_{timeGap}_{year}_{month}_{date}_{str}\\"
 
-    # location = f"D:\\Desktop\\College Documents\\ProjectExtramarks2\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\{stry}\\{type1}_{estimation_type}"
     j=0
     try:
         if(os.path.exists(location)):
@@ -549,8 +544,7 @@ def plotValFit(windowSize,TimeGap,data,year,month,date,targetStrike):
     while(next_iter < datetime_end and numPlots <= 10):
         k+=1
         if(k%1800==0):
-            location = f"D:\\Desktop\\College Documents\\ProjectExtramarks2\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{TimeGap}\\{endstr}"
-            # location = f"X:\\NXBLOCK\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\{endstr}\\"
+            location = f"X:\\NXBLOCK\\OptionsTradingStrategy\\AllReports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\{endstr}\\"
 
             X_Vals1 = np.arange(0,windowSize)
             X_Vals2 = np.arange(0,windowSize + TimeGap)
@@ -665,8 +659,7 @@ def plotPremiumError(exptectedPremiums, actualValues, timeList, targetStrike, wi
     stry="error"
     parameter="Premium"
     #calculating the percentage change from actual and expected value at each second 
-    location = f"D:\\Desktop\\College Documents\\ProjectExtramarks2\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\{stry}\\{type1}_{estimation_type}"
-    # location = f"X:\\NXBLOCK\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\{stry}\\{type1}_{estimation_type}\\"
+    location = f"X:\\NXBLOCK\\OptionsTradingStrategy\\AllReports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\{stry}\\{type1}_{estimation_type}\\"
     
     j=0
     try:
@@ -820,10 +813,7 @@ def computeExpectedImpvChanges(actualImpvs,windowSize,timeGap,year,month,day,typ
 def ProfitorLossforaDay(grk, pathtocreate,expectedPremiums, actualImpVs, expectedImpVs, actualSpots, expectedSpots, actualPremiums, expectedValues,timeGap, windowSize, optionType ,brockerage, targetStrike, date, month, year, hourFrom, minuteFrom, secondFrom, hourTo, minuteTo, secondTo, greek_type, estimation_type, smoothingFactor):
 
     timeList, lenBefore, lenAfter = getTimeList(year, month, date, hourTo, minuteTo, secondTo, hourFrom, minuteFrom , secondFrom, windowSize)
-    
-    # location = f"D:\\Desktop\\College Documents\\ProjectExtramarks2\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\Report_{greek_type}_{estimation_type}.csv"
-    # location = f"X:\\NXBLOCK\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{targetStrike}\\{windowSize}_{timeGap}\\Report_{greek_type}_{estimation_type}_{smoothingFactor}_{optionType}.csv"
-    
+        
     os.chdir(pathtocreate)
     location = pathtocreate +"\\"+str(year)
     if(os.path.exists(location)==False):
@@ -847,13 +837,7 @@ def ProfitorLossforaDay(grk, pathtocreate,expectedPremiums, actualImpVs, expecte
     if(os.path.exists(location)==False):
         os.mkdir(location)
 
-    # if "Reports" not in os.listdir():
-    #     location += "\\Reports"
-    #     os.mkdir(location)
-
-    # os.chdir(pathtocreate+"\\"+str(year)+"\\"+str(month)+"\\"+str(date)+"\\Reports")
     os.chdir(location)
-    # location = pathtocreate+"\\"+str(year)+"\\"+str(month)+"\\"+str(date)+"\\"
 
     if(grk == "vega"):
         location = f"Report_{greek_type}_{estimation_type}_{smoothingFactor}_{optionType}_vega.csv"
@@ -947,11 +931,35 @@ def ProfitorLossforaDay(grk, pathtocreate,expectedPremiums, actualImpVs, expecte
         predict_good = -1
     # if(os.path.exists(location)==False):
     #     os.mkdir(location)
+    in_hand = rows[1][1] + rows[1][9]
+    borrowed = rows[1][1]
+
+    void = 0
+    try:
+        for i in range(2, len(rows)):
+            nextPremium = rows[i][1]
+            pnl_i = rows[i][9]
+            if nextPremium >= in_hand:
+                borrowed += (nextPremium  - in_hand)
+                in_hand += borrowed
+            
+            # in_hand -= rows[i][1]
+            in_hand += pnl_i
+    except:
+        void +=1
+    try:
+        rows[0].extend([ "    "," Capital Required:"])
+        rows[1].extend([ "    ",borrowed])
+    except:
+        pass
 
     with open(location  , "w", newline="") as f:
         writer = csv.writer(f)
         writer.writerows(rows)
-    return pnl, predict_good
+
+
+
+    return pnl, predict_good, borrowed
 
 
 def getStrikePrices(path,optionType,year,month,day):
@@ -981,7 +989,6 @@ def getStrikePrices(path,optionType,year,month,day):
 #     location = pathtocreate +"\\"+str(year) + "\\" + str(month)
 
 #     filename = f"{estimationType}_{str(windowSize)}_{str(timeGap)}_{optionType}.csv"
-#     # pathforfile = "D:\\College Documents\\ExtramarksOptionsTrading\\OptionsTradingStrategy\\Reports\\"+year+"\\"+month+"\\"
 #     rows = []
 #     rows.append(['Smoothing Factor','PnL','Average Hit rate'])
 
@@ -1002,13 +1009,16 @@ def csvformonth(pathtocreate, greek, dictPnL,dictHitRate,year,month,estimationTy
 
     for smoothingFactor in dictPnL.keys():
         rows = []
-        rows.append(['Date','PnL','Average Hit Rate'])
+        rows.append(['Date', 'PnL', 'Capital Required', 'Average Hit Rate', '% profit'])
         filename = f"{smoothingFactor}_{greek}_{estimationType}_{str(windowSize)}_{str(timeGap)}_{optionType}.csv"
         for date in dictPnL[smoothingFactor].keys():
             row = []
             row.append(date)
-            row.append(dictPnL[smoothingFactor][date])
+            row.append(dictPnL[smoothingFactor][date][0])
+            row.append(dictPnL[smoothingFactor][date][1])
             row.append(dictHitRate[smoothingFactor][date])
+            row.append((dictPnL[smoothingFactor][date][0] / dictPnL[smoothingFactor][date][1])*100 )
+            print((dictPnL[smoothingFactor][date][0] / dictPnL[smoothingFactor][date][1])*100 + f"% profit")
             rows.append(row)
         with open(location+"\\"+filename,"w",newline="") as f:
             writer = csv.writer(f)
@@ -1383,9 +1393,6 @@ def computeGreeks(grk, pathoriginal,pathtocreate,fileName, spotData, windowSize,
         strikePnl = [targetStrike, pnl]
 
         # plotValFit(windowSize,timeGap,spotData,year,month,date,targetStrike)
-        # location1 = f"D:\\Desktop\\College Documents\\ProjectExtramarks2\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{greek_use}_{estimation_type}_strikeReports.txt "
-        # location1 = f"X:\\NXBLOCK\\OptionsTradingStrategy\\Reports\\{year}_{month}_{date}\\{greek_use}_{estimation_type}_strikeReports.txt "
-
         # with open(location1  , "a") as f:
         os.chdir(pathtocreate)
         pathtocreate += "\\"+str(year)
@@ -1403,7 +1410,6 @@ def computeGreeks(grk, pathoriginal,pathtocreate,fileName, spotData, windowSize,
             os.mkdir(pathtocreate)
         os.chdir(pathtocreate)
 
-        # location1 = pathtocreate + "\\" + f"{estimation_type}_{greek_use}_strikeReports.txt"
         location1 =  pathtocreate + "\\" +f"{estimation_type}_{greek_use}_strikeReports.txt"
         # if(os.path.exists(location1)==False):
         #     os.mkdir(location1)
@@ -1480,13 +1486,19 @@ if __name__ == "__main__":
                 hitrates_fac[sf] = dict()
             # {factor : pnl, factor2 : pnl2, factor3:pnl3}
             for date in os.listdir():
-                # os.chdir(pathtopkl+"\\"+year+"\\"+month+"\\"+date)
                 dateNum = int(date[:-4])
-                month_pnl[sf][dateNum] = 0
+
+                # month_pnl[sf][dateNum][0] = pnl
+                # month_pnl[sf][dateNum][1] = capital required
+                month_pnl[sf][dateNum] = [0,0]
+                # month_pnl[sf][dateNum][0] = 0
+                # month_pnl[sf][dateNum][1] = 0
                 hitrates_fac[sf][dateNum] = 0
+
                 for greek_use_i in ["now"]:
                     for estimation_type_i in["ema"]:
-                        # targetStrike = 28700
+                        
+                        #only one windowsize_timegap combination per run for correct report
                         for prev_windowSize in [3]:
                             for timeGap in [2]:
                                 optionType = "PE"
@@ -1503,9 +1515,11 @@ if __name__ == "__main__":
                                     for smoothingFactor in smoothingFactors:
                                         pg_list = []
                                         pnl_fac = 0
+                                        borrow_fac = 0
                                         for targetStrike in strikePrices:
-                                            pnl, hit_rate = computeGreeks(grk, pathtopkl+"\\"+year+"\\"+month,pathtocreate,date, spotData, prev_windowSize, timeGap, targetStrike, optionType, smoothingFactor,dateNum, monthNum, yearNum, hourFrom=9, minuteFrom=15, secondFrom=0, hourTo=15, minuteTo=30, secondTo=0, estimation_type=estimation_type_i, greek_use=greek_use_i)
+                                            pnl, hit_rate, borrowed_money = computeGreeks(grk, pathtopkl+"\\"+year+"\\"+month,pathtocreate,date, spotData, prev_windowSize, timeGap, targetStrike, optionType, smoothingFactor,dateNum, monthNum, yearNum, hourFrom=9, minuteFrom=15, secondFrom=0, hourTo=15, minuteTo=30, secondTo=0, estimation_type=estimation_type_i, greek_use=greek_use_i)
                                             pnl_fac += pnl
+                                            borrow_fac += borrowed_money
                                             pg_list.append(hit_rate)
 
                                         av_hitrate = 0                                       
@@ -1514,33 +1528,23 @@ if __name__ == "__main__":
                                         except:
                                             print("empty hit-rt list")
                                         #for month stats
-                                        month_pnl[smoothingFactor][dateNum] += pnl_fac
+                                        month_pnl[smoothingFactor][dateNum][0] += pnl_fac
+                                        month_pnl[smoothingFactor][dateNum][1] += borrow_fac
                                         hitrates_fac[smoothingFactor][dateNum] = av_hitrate 
-                                        #text file
 
-                                        # location1 =  pathtocreate + "\\" + f"{year}" +"\\"+ f"{monthtonum[month]}" +"\\"+f"{date[:-4]}"+ "\\" +f"{estimation_type_i}_{greek_use_i}_{grk}_DayReport.txt"
-                                        # try:
-                                        #     file = open(location1, "a")
-                                        # except:
-                                        #     os.mkdir(location1)
-                                        # file = open(location1, "a")
-                                        
-                                        # file.write(f"{prev_windowSize}_{timeGap} " + f"{optionType} " +f"{smoothingFactor} "+"----> " + str(pnl_fac) + " "+ "Average hit rate = " + " " + str(av_hitrate) +"\n" )
-                                        # file.close()
                                     
-
                                 else:
                                     for targetStrike in [30000]:
                                             computeGreeks(grk, pathtopkl+"\\"+year+"\\"+month+"\\"+date,pathtocreate,date, spotData, prev_windowSize, timeGap, targetStrike, optionType, smoothingFactor,dateNum, monthNum, yearNum, hourFrom=9, minuteFrom=15, secondFrom=0, hourTo=15, minuteTo=30, secondTo=0, estimation_type=estimation_type_i, greek_use=greek_use_i)
-            
+            void = 0
             try:
                 fac_month_pnl = 0
                 for sf in smoothingFactors:
                     for daten in month_pnl[sf]:
-                        fac_month_pnl += month_pnl[sf][daten]
+                        fac_month_pnl += month_pnl[sf][daten][0]
             except:
-                continue
+                void +=1
+
             csvformonth(pathtocreate,grk, month_pnl,hitrates_fac,year,monthtonum[month],e_type_report,w_size_report,t_gap_report,op_type_report)
-    print(month_pnl)
-    print(hitrates_fac)
+    
 
