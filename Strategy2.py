@@ -777,12 +777,13 @@ def computeExpectedImpvChanges(actualImpvs,windowSize,timeGap,year,month,day,typ
     PredictedImpVChanges = []
     impvs = []
     datetime_start = datetime(year,month,day,9,15,0)
-    datetime_end = datetime(year,month,day,15,30,1)
+    datetime_end = datetime(year,month,day,15,30,0)
     iter = datetime_start
     j=0
     buffer = []
     # Initialization of buffer
     while(iter < datetime(year,month,day,9,15,windowSize)):
+        # print(len(buffer), len(actualImpvs), len(PredictedImpVChanges), j)
         buffer.append(actualImpvs[j])
         impvs.append(actualImpvs[j].imp_v)
         # print(iter)
@@ -793,7 +794,7 @@ def computeExpectedImpvChanges(actualImpvs,windowSize,timeGap,year,month,day,typ
     next_iter = iter + timedelta(seconds=timeGap)
 
     PredictedImpVChange = 0
-    while(next_iter < datetime_end):
+    while(next_iter < datetime_end and j<len(actualImpvs)):
         if(type=="simple"):
             PredictedImpVChange = timeGap*AverageChange(buffer, windowSize)
 
@@ -806,12 +807,13 @@ def computeExpectedImpvChanges(actualImpvs,windowSize,timeGap,year,month,day,typ
         PredictedImpVChanges.append(impvpair(next_iter,PredictedImpVChange))
         iter+=timedelta(seconds=1)
         next_iter+=timedelta(seconds=1)
+        # print(len(buffer), len(actualImpvs), len(PredictedImpVChanges), j)
+
         buffer.append(actualImpvs[j])
         impvs.append(actualImpvs[j].imp_v)
         del buffer[0]
         del impvs[0]
         j+=1
-
     return PredictedImpVChanges
 
 
@@ -937,9 +939,12 @@ def ProfitorLossforaDay(grk, pathtocreate,expectedPremiums, actualImpVs, expecte
         rows[9].extend(["   ","ELAL:",r])
     except:
         pass
-
-    predict_good = (p + r)/(p+q+r+s)
-
+    
+    predict_good = -1
+    try:
+        predict_good = (p + r)/(p+q+r+s)
+    except:
+        predict_good = -1
     # if(os.path.exists(location)==False):
     #     os.mkdir(location)
 
@@ -971,33 +976,43 @@ def getStrikePrices(path,optionType,year,month,day):
 
     return strikePrices
 
-def csvformonth(pathtocreate, dictPnL,dictHitRate,year,month,estimationType,windowSize,timeGap,optionType):
+# def csvformonth(pathtocreate, dictPnL,dictHitRate,year,month,estimationType,windowSize,timeGap,optionType):
+#     os.chdir(pathtocreate)
+#     location = pathtocreate +"\\"+str(year) + "\\" + str(month)
+
+#     filename = f"{estimationType}_{str(windowSize)}_{str(timeGap)}_{optionType}.csv"
+#     # pathforfile = "D:\\College Documents\\ExtramarksOptionsTrading\\OptionsTradingStrategy\\Reports\\"+year+"\\"+month+"\\"
+#     rows = []
+#     rows.append(['Smoothing Factor','PnL','Average Hit rate'])
+
+#     for key in dictPnL.keys():
+#         row = []
+#         row.append(key)
+#         row.append(dictPnL[key])
+#         row.append(dictHitRate[key])
+#         rows.append(row)
+
+#     with open(location + "\\" +filename  , "w", newline="") as f:
+#         writer = csv.writer(f)
+#         writer.writerows(rows)
+
+def csvformonth(pathtocreate, greek, dictPnL,dictHitRate,year,month,estimationType,windowSize,timeGap,optionType):
     os.chdir(pathtocreate)
     location = pathtocreate +"\\"+str(year) + "\\" + str(month)
-    # if(os.path.exists(location)==False):
-    #     os.mkdir(location)
-    # os.chdir(location)
 
-    # location += "\\"+str(month)
-    # if(os.path.exists(location)==False):
-    #     os.mkdir(location)
-    # os.chdir(location)
-
-    filename = f"{estimationType}_{str(windowSize)}_{str(timeGap)}_{optionType}.csv"
-    # pathforfile = "D:\\College Documents\\ExtramarksOptionsTrading\\OptionsTradingStrategy\\Reports\\"+year+"\\"+month+"\\"
-    rows = []
-    rows.append(['Smoothing Factor','PnL','Average Hit rate'])
-
-    for key in dictPnL.keys():
-        row = []
-        row.append(key)
-        row.append(dictPnL[key])
-        row.append(dictHitRate[key])
-        rows.append(row)
-
-    with open(location + "\\" +filename  , "w", newline="") as f:
-        writer = csv.writer(f)
-        writer.writerows(rows)
+    for smoothingFactor in dictPnL.keys():
+        rows = []
+        rows.append(['Date','PnL','Average Hit Rate'])
+        filename = f"{smoothingFactor}_{greek}_{estimationType}_{str(windowSize)}_{str(timeGap)}_{optionType}.csv"
+        for date in dictPnL[smoothingFactor].keys():
+            row = []
+            row.append(date)
+            row.append(dictPnL[smoothingFactor][date])
+            row.append(dictHitRate[smoothingFactor][date])
+            rows.append(row)
+        with open(location+"\\"+filename,"w",newline="") as f:
+            writer = csv.writer(f)
+            writer.writerows(rows)
 
 def computeGreeks(grk, pathoriginal,pathtocreate,fileName, spotData, windowSize, timeGap, targetStrike, optionType, smoothingFactor,date=1, month=12, year=2020, hourFrom=9, minuteFrom=15, secondFrom=00, hourTo=15, minuteTo=30, secondTo=00, estimation_type="simple", greek_use="predict"):
     # loading the pickle data
@@ -1023,11 +1038,13 @@ def computeGreeks(grk, pathoriginal,pathtocreate,fileName, spotData, windowSize,
         # exps.append(expiry_date)
         temp=0
         if len(exps)==2:
-            temp = exps[0]
+            # print(exps)
+            temp = exps[1]
         #     exps[1] = exps[0]
         #     exps[0] = temp
         # expiry_date = exps[0]
-        if expiry_date!=temp:
+        if len(exps)==1:
+            
             for trade_time in data[expiry_date]:
 
                 # since there can be multiple contracts at a particular second
@@ -1160,8 +1177,140 @@ def computeGreeks(grk, pathoriginal,pathtocreate,fileName, spotData, windowSize,
                             dup3 = copy.deepcopy(expectedValues[len(expectedValues)-1])
                             dup3.time += timedelta(seconds=1) 
                             expectedValues.append(dup3)
+        if len(exps)==2:
+            expiry_date = exps[1]
+            for trade_time in data[expiry_date]:
 
+                # since there can be multiple contracts at a particular second
+                # we find an equivalent contract for the second
+                secondBuffer = []
+                seconds_checker+=1
+                for option_type in data[expiry_date][trade_time]:
+                    if(option_type == optionType):
+                        found=0
+                        for strike_price in data[expiry_date][trade_time][option_type]:
+                            
+                            if strike_price != targetStrike:
+                                continue
+                            elif strike_price == targetStrike:
+                                #if a contract exists for the given target strike at that second
+                                found+=1
+                                # all contracts for the given target strike at that second
+                                strike_dict = data[expiry_date][trade_time][option_type][strike_price]
+                                for contract in strike_dict:
+                                    price, vol, oi, imp_v, delta, theta, vega, gamma, rho = contract["price"], contract["volume"], contract["oi"], contract["imp_v"], contract["delta"], contract["theta"], contract["vega"],contract["gamma"], contract["rho"]
+                            #sabka price * vol ka weighted average and simple prices/num of contracts
+                                    thisContract =  Contract(price, vol, imp_v, delta, theta, vega, gamma, rho, trade_time)                          
+                                    secondBuffer.append(thisContract)
 
+                        if found>0:
+                            secondPrice = 0
+                            secondVol = 0
+                            secondImp_v = 0
+                            secondDelta = 0
+                            secondTheta = 0
+                            secondVega = 0
+                            secondGamma = 0
+                            secondRho = 0
+                            secondLen = len(secondBuffer)
+                            # Weighted price variables
+                            prices_buffer = []
+                            vol_buffer = []
+                            for secondContracts in secondBuffer:
+                                # secondPrice += secondContracts.price/secondLen
+                                # secondVol += secondContracts.vol/secondLen
+                                prices_buffer.append(secondContracts.price)
+                                vol_buffer.append(secondContracts.vol)
+                                secondImp_v += secondContracts.imp_v/secondLen
+                                secondDelta += secondContracts.delta/secondLen
+                                secondTheta += secondContracts.theta/secondLen
+                                secondVega += secondContracts.vega/secondLen
+                                secondGamma += secondContracts.gamma/secondLen
+                                secondRho += secondContracts.rho/secondLen
+                            
+                            for vol in vol_buffer:
+                                secondVol+=vol
+
+                            for i in range(len(prices_buffer)):
+                                secondPrice+=(prices_buffer[i]*vol_buffer[i])/secondVol
+                            
+                            secondVol/=len(vol_buffer)
+                            # this is the equivalent average-values contract for the second
+                            secondEquivalent = Contract(secondPrice, secondVol, secondImp_v, secondDelta, secondTheta, secondVega, secondGamma, secondRho, trade_time);
+                            # this becomes the actual value for the second (assumption)
+                            actualValues.append(secondEquivalent)
+                            # print(secondEquivalent.time)
+                            # print(trade_time,secondImp_v)
+                            imp_vpairs.append(impvpair(trade_time,secondImp_v))
+                            
+                        
+
+                            
+                            if len(windowBuffer) < windowSize:
+                                # if window is currently < required windowSize
+                                windowBuffer.append(secondEquivalent)
+                            elif len(windowBuffer) == windowSize:
+                                # push and pop next second's contract to keep the window equal
+                                # to the window size required
+                                windowBuffer.pop(0)
+                                windowBuffer.append(secondEquivalent)
+                        else:         
+
+                            # if there was no contract available for that time with given 
+                            # strike and type then we just duplicate and push the last found contract (assumption)
+                            if len(windowBuffer) < windowSize:       
+                                # print(windowBuffer, len(windowBuffer), expiry_date)   
+                                windowBuffer.append(windowBuffer[len(windowBuffer)-1])  
+                            elif len(windowBuffer) == windowSize:
+                                windowBuffer.append(windowBuffer[len(windowBuffer)-1])
+                                windowBuffer.pop(0)
+                            try:
+                                dup = copy.deepcopy(actualValues[len(actualValues)-1])
+                                dup.time += timedelta(seconds=1) 
+                                actualValues.append(dup)
+                            except:
+                                print("empty")
+                            
+
+                            # expectedValues.append(dup)
+                            found=0
+                            # print(trade_time, secondImp_v)
+                            imp_vpairs.append(impvpair(trade_time,imp_vpairs[len(imp_vpairs)-1].imp_v))
+                        if len(windowBuffer) == windowSize:
+                            #average values
+                            # average values for the current window duration
+                            priceAverage, vol_Av, imp_vAverage, deltaAverage, thetaAverage, vegaAverage, gammaAverage, rhoAverage = computeAverage(windowBuffer, windowSize)
+                            nextValues = Contract(priceAverage, 1, imp_vAverage, deltaAverage, thetaAverage, vegaAverage, gammaAverage, rhoAverage, trade_time)
+
+                            #expected values
+                            # expected values for the next 'timeGap' seconds
+                            if(estimation_type == "simple"):
+                                priceExpected, volEx, imp_vExpected, deltaExpected, thetaExpected, vegaExpected, gammaExpected, rhoExpected = computeExpected(windowBuffer, windowSize, timeGap)
+                            
+                            if(estimation_type == "regress"):
+                                priceExpected, volEx, imp_vExpected, deltaExpected, thetaExpected, vegaExpected, gammaExpected, rhoExpected = computeExpectedRegress(windowBuffer, windowSize, timeGap)
+                            
+                            if(estimation_type == "ema"):
+                                priceExpected, volEx, imp_vExpected, deltaExpected, thetaExpected, vegaExpected, gammaExpected, rhoExpected = computeEMA(windowBuffer,windowSize,smoothingFactor,timeGap)
+
+                            expValues = Contract(priceExpected, 1, imp_vExpected, deltaExpected, thetaExpected, vegaExpected, gammaExpected, rhoExpected, trade_time)
+
+                            averageValues.append(nextValues)
+                            expectedValues.append(expValues)
+
+                    if(len(data[expiry_date][trade_time])==1):
+                        if optionType not in data[expiry_date][trade_time]:
+
+                            # print(option_type, trade_time)
+                            dup1 = copy.deepcopy(actualValues[len(actualValues)-1])
+                            dup1.time += timedelta(seconds=1) 
+                            actualValues.append(dup1)
+                            dup2 = copy.deepcopy(averageValues[len(averageValues)-1])
+                            dup2.time += timedelta(seconds=1) 
+                            averageValues.append(dup2)
+                            dup3 = copy.deepcopy(expectedValues[len(expectedValues)-1])
+                            dup3.time += timedelta(seconds=1) 
+                            expectedValues.append(dup3)
         i=0
         e = []
         # exp = [25, 26..]
@@ -1197,8 +1346,7 @@ def computeGreeks(grk, pathoriginal,pathtocreate,fileName, spotData, windowSize,
         expectedSpotsChanges = []
         # print(len(imp_vpairs))
         # spotsActual = computeSpotsActual(year, month, date, spotPath)
-        
-        expectedSpotsChanges, spotsActual = computeExpectedSpotChanges(year, month, date, spotData, windowSize, timeGap, estimation_type, smoothingFactor)
+        expectedSpotsChanges, spotsActual = computeExpectedSpotChanges(year, month, date, spotData, windowSize, timeGap, estimation_type, smoothingFactor)        
         expectedImpVChanges = computeExpectedImpvChanges(imp_vpairs,windowSize,timeGap,year,month,date,'ema')
 
         spotsActual = spotsActual[windowSize - 1:]
@@ -1304,11 +1452,16 @@ if __name__ == "__main__":
     # 2. estimation_type = "simple" ---> average of changes used to interpolate values at t+5
     # 3. estimation_type = "ema"  ---> expected moving average
     # --------------------------------------------------------------
+    #
+    #for days with 2 expiry dates, same-day expiry options are traded
+    #
+    #----------------------------------------------------------------
     os.chdir(pathtopkl)
 
     grk = "delta"
 
-    smoothingFactors = [0.01, 0.03, 0.3, 0.4]
+    smoothingFactors = [0.01]
+    # smoothingFactors = [0.01, 0.03, 0.3, 0.4]
     
     for year in os.listdir():
         os.chdir(pathtopkl+"\\"+year)
@@ -1323,13 +1476,14 @@ if __name__ == "__main__":
             month_pnl = dict()
             hitrates_fac = dict()
             for sf in smoothingFactors:
-                month_pnl[sf] = 0
-                hitrates_fac[sf] = []
+                month_pnl[sf] = dict()
+                hitrates_fac[sf] = dict()
             # {factor : pnl, factor2 : pnl2, factor3:pnl3}
             for date in os.listdir():
                 # os.chdir(pathtopkl+"\\"+year+"\\"+month+"\\"+date)
                 dateNum = int(date[:-4])
-                
+                month_pnl[sf][dateNum] = 0
+                hitrates_fac[sf][dateNum] = 0
                 for greek_use_i in ["now"]:
                     for estimation_type_i in["ema"]:
                         # targetStrike = 28700
@@ -1353,27 +1507,40 @@ if __name__ == "__main__":
                                             pnl, hit_rate = computeGreeks(grk, pathtopkl+"\\"+year+"\\"+month,pathtocreate,date, spotData, prev_windowSize, timeGap, targetStrike, optionType, smoothingFactor,dateNum, monthNum, yearNum, hourFrom=9, minuteFrom=15, secondFrom=0, hourTo=15, minuteTo=30, secondTo=0, estimation_type=estimation_type_i, greek_use=greek_use_i)
                                             pnl_fac += pnl
                                             pg_list.append(hit_rate)
-                                        
-                                        av_hitrate = sum(pg_list)/len(pg_list)
-                                        #for month stats
-                                        month_pnl
-                                        month_pnl[smoothingFactor] += pnl_fac
-                                        hitrates_fac[smoothingFactor].append(av_hitrate)
 
+                                        av_hitrate = 0                                       
+                                        try:
+                                            av_hitrate = sum(pg_list)/len(pg_list)
+                                        except:
+                                            print("empty hit-rt list")
+                                        #for month stats
+                                        month_pnl[smoothingFactor][dateNum] += pnl_fac
+                                        hitrates_fac[smoothingFactor][dateNum] = av_hitrate 
                                         #text file
-                                        location1 =  pathtocreate + "\\" + f"{year}" +"\\"+ f"{monthtonum[month]}" +"\\"+f"{date[:-4]}"+ "\\" +f"{estimation_type_i}_{greek_use_i}_{grk}_DayReport.txt"
-                                        file = open(location1, "a")
-                                        file.write(f"{prev_windowSize}_{timeGap} " + f"{optionType} " +f"{smoothingFactor} "+"----> " + str(pnl_fac) + " "+ "Average hit rate = " + " " + str(av_hitrate) +"\n" )
-                                        file.close()
+
+                                        # location1 =  pathtocreate + "\\" + f"{year}" +"\\"+ f"{monthtonum[month]}" +"\\"+f"{date[:-4]}"+ "\\" +f"{estimation_type_i}_{greek_use_i}_{grk}_DayReport.txt"
+                                        # try:
+                                        #     file = open(location1, "a")
+                                        # except:
+                                        #     os.mkdir(location1)
+                                        # file = open(location1, "a")
+                                        
+                                        # file.write(f"{prev_windowSize}_{timeGap} " + f"{optionType} " +f"{smoothingFactor} "+"----> " + str(pnl_fac) + " "+ "Average hit rate = " + " " + str(av_hitrate) +"\n" )
+                                        # file.close()
                                     
 
                                 else:
                                     for targetStrike in [30000]:
                                             computeGreeks(grk, pathtopkl+"\\"+year+"\\"+month+"\\"+date,pathtocreate,date, spotData, prev_windowSize, timeGap, targetStrike, optionType, smoothingFactor,dateNum, monthNum, yearNum, hourFrom=9, minuteFrom=15, secondFrom=0, hourTo=15, minuteTo=30, secondTo=0, estimation_type=estimation_type_i, greek_use=greek_use_i)
-            for sf in smoothingFactors:
-                av_hitrat = sum(hitrates_fac[sf])/len(hitrates_fac[sf])
-                hitrates_fac[sf] = av_hitrat
-            csvformonth(pathtocreate, month_pnl,hitrates_fac,year,monthtonum[month],e_type_report,w_size_report,t_gap_report,op_type_report)
-    # print(month_pnl)
-    # print(hitrates_fac)
+            
+            try:
+                fac_month_pnl = 0
+                for sf in smoothingFactors:
+                    for daten in month_pnl[sf]:
+                        fac_month_pnl += month_pnl[sf][daten]
+            except:
+                continue
+            csvformonth(pathtocreate,grk, month_pnl,hitrates_fac,year,monthtonum[month],e_type_report,w_size_report,t_gap_report,op_type_report)
+    print(month_pnl)
+    print(hitrates_fac)
 
