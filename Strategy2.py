@@ -741,26 +741,20 @@ def computePremiumExpectedVega(actualValues, expectedValues, expectedImpVChanges
     timeList, lenBefore, lenAfter = getTimeList(year, month, date, hourTo, minuteTo, secondTo, hourFrom, minuteFrom, secondFrom, windowSize)
     
     # print(actualValues[0].time,expectedValues[timeGap].time,expectedSpotChanges[timeGap].time)
-    for i in range(len(actualValues)-timeGap):
+    for i in range(len(expectedImpVChanges)):
         if(i<timeGap):
             expectedPremiums.append(prempair(actualValues[i].time, 0))
         else:
-            #   MX  +  C 
             if(type=="predict"):
-            # delta for t+5
                 expectedPremiums.append(prempair(expectedImpVChanges[i].time, actualValues[i-timeGap].price +  expectedValues[i].vega*(expectedImpVChanges[i].imp_v)))
 
             if(type=="now"):
-            # delta for t
                 # try:
+                # print(len(expectedImpVChanges), i, i-timeGap, len(actualValues))
                 expectedPremiums.append(prempair(expectedImpVChanges[i].time, actualValues[i-timeGap].price +  actualValues[i-timeGap].vega*expectedImpVChanges[i].imp_v))
                 # except:
                     # print(i, len(expectedImpVChanges), len(actualValues), i-timeGap)
-    # print(actualValues[-6].price, expectedValues[-1].delta, spotsExpected[-1].spot, expectedPremiums[-1].premium)
-    # plotPremiumError(expectedPremiums,actualValues, timeList, targetStrike, windowSize, timeGap, year, month, date, lenBefore, estimation_type, type)
-    # plotPremiumActual(expectedPremiums,actualValues, timeList, targetStrike, windoCSpots, expectedSpots, actualPremiums, expectedValues,timeGap, windowSize, optionType ,brockerage, targetStrike, date, month, year, hourFrom, minuteFrom, secondFrom, hourTo, minuteTo, secondTo, greek_type, estimation_type, smoothingFactor):
 
-    # timeList, len
     # print(len(expectedImpVChanges),len(actualValues),len(expectedPremiums))
     # print(expectedImpVChanges[0].time,actualValues[0].time,expectedPremiums[0].time)
     return expectedPremiums
@@ -931,8 +925,12 @@ def ProfitorLossforaDay(grk, pathtocreate,expectedPremiums, actualImpVs, expecte
         predict_good = -1
     # if(os.path.exists(location)==False):
     #     os.mkdir(location)
-    in_hand = rows[1][1] + rows[1][9]
-    borrowed = rows[1][1]
+    try:
+        in_hand = rows[1][1] + rows[1][9]
+        borrowed = rows[1][1]
+    except:
+        in_hand = -1
+        borrowed = -1
 
     void = 0
     try:
@@ -1017,8 +1015,13 @@ def csvformonth(pathtocreate, greek, dictPnL,dictHitRate,year,month,estimationTy
             row.append(dictPnL[smoothingFactor][date][0])
             row.append(dictPnL[smoothingFactor][date][1])
             row.append(dictHitRate[smoothingFactor][date])
-            row.append((dictPnL[smoothingFactor][date][0] / dictPnL[smoothingFactor][date][1])*100 )
-            print((dictPnL[smoothingFactor][date][0] / dictPnL[smoothingFactor][date][1])*100 + f"% profit")
+            try:
+                row.append((dictPnL[smoothingFactor][date][0] / dictPnL[smoothingFactor][date][1])*100 )
+                print((dictPnL[smoothingFactor][date][0] / dictPnL[smoothingFactor][date][1])*100 + f"% profit")
+            
+            except:
+                row.append(-1)
+
             rows.append(row)
         with open(location+"\\"+filename,"w",newline="") as f:
             writer = csv.writer(f)
@@ -1459,14 +1462,19 @@ if __name__ == "__main__":
     # 3. estimation_type = "ema"  ---> expected moving average
     # --------------------------------------------------------------
     #
-    #for days with 2 expiry dates, same-day expiry options are traded
+    # for days with 2 expiry dates, same-day expiry options are traded
+    #
+    #----------------------------------------------------------------    
+    #
+    # when data is not available for a second, precious second data is extrapolated
     #
     #----------------------------------------------------------------
     os.chdir(pathtopkl)
 
-    grk = "delta"
+    grk = "vega"
+    # grk = "delta"
 
-    smoothingFactors = [0.01]
+    smoothingFactors = [0.5]
     # smoothingFactors = [0.01, 0.03, 0.3, 0.4]
     
     for year in os.listdir():
@@ -1519,6 +1527,7 @@ if __name__ == "__main__":
                                         for targetStrike in strikePrices:
                                             pnl, hit_rate, borrowed_money = computeGreeks(grk, pathtopkl+"\\"+year+"\\"+month,pathtocreate,date, spotData, prev_windowSize, timeGap, targetStrike, optionType, smoothingFactor,dateNum, monthNum, yearNum, hourFrom=9, minuteFrom=15, secondFrom=0, hourTo=15, minuteTo=30, secondTo=0, estimation_type=estimation_type_i, greek_use=greek_use_i)
                                             pnl_fac += pnl
+                                            # if(borrowed_money != -1):
                                             borrow_fac += borrowed_money
                                             pg_list.append(hit_rate)
 
