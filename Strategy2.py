@@ -865,12 +865,20 @@ def ProfitorLossforaDay(grk, pathtocreate,expectedPremiums, actualImpVs, expecte
 
                     pnl += indiv_pnl
                     p +=1
+                    if(grk == "vega"):
+                        rows.append([actualPremiums[time_iter].time.strftime("%d/%m/%Y, %H:%M:%S"), actualPremiums[time_iter].price,    expectedPremiums[time_iter+timeGap].premium,   actualPremiums[time_iter+timeGap].price,     actualPremiums[time_iter].vega ,       actualPremiums[time_iter+timeGap].vega,     actualImpVs[time_iter].imp_v ,   actualImpVs[time_iter+timeGap].imp_v,    expectedPremiums[time_iter+timeGap].time.strftime("%d/%m/%Y, %H:%M:%S"), indiv_pnl])
+                    if(grk == "delta" and actualPremiums[time_iter].delta >= -0.5 and actualPremiums[time_iter].delta <= 0.5):
+                        rows.append([actualPremiums[time_iter].time.strftime("%d/%m/%Y, %H:%M:%S"), actualPremiums[time_iter].price,    expectedPremiums[time_iter+timeGap].premium,   actualPremiums[time_iter+timeGap].price,     actualPremiums[time_iter].delta ,       actualPremiums[time_iter+timeGap].delta,     actualSpots[time_iter].spot ,   actualSpots[time_iter+timeGap].spot,    expectedPremiums[time_iter+timeGap].time.strftime("%d/%m/%Y, %H:%M:%S"), indiv_pnl])
                 
                 # expected pnl>0 ,  actual pnl<0, brock+
                 elif expectedPremiums[time_iter+timeGap].premium-actualPremiums[time_iter].price  >= 0 and actualPremiums[time_iter+timeGap].price  - actualPremiums[time_iter].price  <= 0 and actualPremiums[time_iter].delta >= -0.5 and actualPremiums[time_iter].delta <= 0.5:
                     indiv_pnl = -1*(actualPremiums[time_iter].price - actualPremiums[time_iter+timeGap].price + brockerage*actualPremiums[time_iter].price)
                     pnl += indiv_pnl
                     q+=1
+                    if(grk == "vega"):
+                        rows.append([actualPremiums[time_iter].time.strftime("%d/%m/%Y, %H:%M:%S"), actualPremiums[time_iter].price,    expectedPremiums[time_iter+timeGap].premium,   actualPremiums[time_iter+timeGap].price,     actualPremiums[time_iter].vega ,       actualPremiums[time_iter+timeGap].vega,     actualImpVs[time_iter].imp_v ,   actualImpVs[time_iter+timeGap].imp_v,    expectedPremiums[time_iter+timeGap].time.strftime("%d/%m/%Y, %H:%M:%S"), indiv_pnl])
+                    if(grk == "delta" and actualPremiums[time_iter].delta >= -0.5 and actualPremiums[time_iter].delta <= 0.5):
+                        rows.append([actualPremiums[time_iter].time.strftime("%d/%m/%Y, %H:%M:%S"), actualPremiums[time_iter].price,    expectedPremiums[time_iter+timeGap].premium,   actualPremiums[time_iter+timeGap].price,     actualPremiums[time_iter].delta ,       actualPremiums[time_iter+timeGap].delta,     actualSpots[time_iter].spot ,   actualSpots[time_iter+timeGap].spot,    expectedPremiums[time_iter+timeGap].time.strftime("%d/%m/%Y, %H:%M:%S"), indiv_pnl])
                 
                 # expected pnl<0 ,  actual pnl<0, brock -
                 # elif expectedPremiums[time_iter+timeGap].premium - actualPremiums[time_iter].price  <= 0 and actualPremiums[time_iter+timeGap].price  - actualPremiums[time_iter].price  <= 0:
@@ -887,10 +895,7 @@ def ProfitorLossforaDay(grk, pathtocreate,expectedPremiums, actualImpVs, expecte
                 
                 # time t, actual price at t, delta at t, expected price at t + timeGap, actual at t + timeGap    
                 # rows.append([actualPremiums[time_iter].time.strftime("%d/%m/%Y, %H:%M:%S"), actualPremiums[time_iter].price,    expectedPremiums[time_iter+timeGap].premium,   actualPremiums[time_iter+timeGap].price,     actualPremiums[time_iter].delta ,      expectedValues[time_iter+timeGap].delta ,    actualPremiums[time_iter+timeGap].delta,     actualSpots[time_iter].spot ,  expectedSpots[time_iter+timeGap].spot,  actualSpots[time_iter+timeGap].spot,    expectedPremiums[time_iter+timeGap].time.strftime("%d/%m/%Y, %H:%M:%S"), indiv_pnl])
-                if(grk == "vega"):
-                    rows.append([actualPremiums[time_iter].time.strftime("%d/%m/%Y, %H:%M:%S"), actualPremiums[time_iter].price,    expectedPremiums[time_iter+timeGap].premium,   actualPremiums[time_iter+timeGap].price,     actualPremiums[time_iter].vega ,       actualPremiums[time_iter+timeGap].vega,     actualImpVs[time_iter].imp_v ,   actualImpVs[time_iter+timeGap].imp_v,    expectedPremiums[time_iter+timeGap].time.strftime("%d/%m/%Y, %H:%M:%S"), indiv_pnl])
-                if(grk == "delta" and actualPremiums[time_iter].delta >= -0.5 and actualPremiums[time_iter].delta <= 0.5):
-                    rows.append([actualPremiums[time_iter].time.strftime("%d/%m/%Y, %H:%M:%S"), actualPremiums[time_iter].price,    expectedPremiums[time_iter+timeGap].premium,   actualPremiums[time_iter+timeGap].price,     actualPremiums[time_iter].delta ,       actualPremiums[time_iter+timeGap].delta,     actualSpots[time_iter].spot ,   actualSpots[time_iter+timeGap].spot,    expectedPremiums[time_iter+timeGap].time.strftime("%d/%m/%Y, %H:%M:%S"), indiv_pnl])
+                
                 
         time_iter+=1
     try:
@@ -904,9 +909,9 @@ def ProfitorLossforaDay(grk, pathtocreate,expectedPremiums, actualImpVs, expecte
 
     for i in range(1, len(rows)):
         row=rows[i]
-        if float(row[9]) >= 0:
+        if float(row[9]) > 0:
             profit_i +=1
-        else:
+        elif float(row[9]) < 0:
             loss_i +=1
     try:
         rows[3].extend(["   ","positive:",profit_i])
@@ -1010,20 +1015,36 @@ def csvformonth(pathtocreate, greek, greek_use,dictPnL,dictHitRate,year,month,es
         rows = []
         rows.append(['Date', 'PnL', 'Capital Required', 'Average Hit Rate', '% profit'])
         filename = f"{smoothingFactor}_{greek}_{estimationType}_{str(windowSize)}_{str(timeGap)}_{optionType}_{greek_use}.csv"
+        tot_pnl = 0
+        tot_cap = 0
+        av_hr = 0
+        av_prof = 0
+        pos_ct = 0
         for date in dictPnL[smoothingFactor].keys():
             row = []
             row.append(date)
             row.append(dictPnL[smoothingFactor][date][0])
+            if(dictPnL[smoothingFactor][date][0] > 0):
+                pos_ct +=1
+            tot_pnl += dictPnL[smoothingFactor][date][0]
             row.append(dictPnL[smoothingFactor][date][1])
+            tot_cap += dictPnL[smoothingFactor][date][1]
             row.append(dictHitRate[smoothingFactor][date])
+            av_hr += dictHitRate[smoothingFactor][date]
             try:
                 row.append((dictPnL[smoothingFactor][date][0] / dictPnL[smoothingFactor][date][1])*100 )
+                av_prof += (dictPnL[smoothingFactor][date][0] / dictPnL[smoothingFactor][date][1])*100 
                 print((dictPnL[smoothingFactor][date][0] / dictPnL[smoothingFactor][date][1])*100 + f"% profit")
             
             except:
-                row.append(-1)
+                row.append(0)
 
             rows.append(row)
+        av_hr /= pos_ct
+        av_prof /= pos_ct
+        rows.append(['','','','',''])
+        rows.append(['','Total PnL','Total Capital Required','Average Hit Rate','Average % profit'])
+        rows.append(['',tot_pnl,tot_cap,av_hr,av_prof])
         with open(location+"\\"+filename,"w",newline="") as f:
             writer = csv.writer(f)
             writer.writerows(rows)
@@ -1530,7 +1551,8 @@ if __name__ == "__main__":
                                             pnl_fac += pnl
                                             # if(borrowed_money != -1):
                                             borrow_fac += borrowed_money
-                                            pg_list.append(hit_rate)
+                                            if(hit_rate!=0):
+                                                pg_list.append(hit_rate)
 
                                         av_hitrate = 0                                       
                                         try:
