@@ -859,7 +859,7 @@ def ProfitorLossforaDay(grk, pathtocreate,expectedPremiums, actualImpVs, expecte
             if( (abs(expectedPremiums[time_iter+timeGap].premium - actualPremiums[time_iter].price) / actualPremiums[time_iter].price) * 100  >100*0.02):
             # if( ((abs(expectedPremiums[time_iter+timeGap].premium - actualPremiums[time_iter].price) / actualPremiums[time_iter].price) * 100  >100*brockerage) and (0.7>=actualPremiums[time_iter + timeGap].delta >= 0.3 or -0.7<=actualPremiums[time_iter + timeGap].delta <= -0.3)):
                 # expected pnl>0 ,  actual pnl>0, brock -
-                if expectedPremiums[time_iter+timeGap].premium-actualPremiums[time_iter].price >= 0 and actualPremiums[time_iter+timeGap].price  - actualPremiums[time_iter].price  >= 0 :
+                if expectedPremiums[time_iter+timeGap].premium-actualPremiums[time_iter].price >= 0 and actualPremiums[time_iter+timeGap].price  - actualPremiums[time_iter].price  >= 0 and actualPremiums[time_iter].delta >= -0.5 and actualPremiums[time_iter].delta <= 0.5:
                     indiv_pnl = (actualPremiums[time_iter+timeGap].price-actualPremiums[time_iter].price - brockerage*actualPremiums[time_iter].price)
                     # indiv_pnl = expectedSpots[time_iter + timeGap]-(actualPremiums[time_iter].strike)-actualPremiums[time_iter].price - brockerage*actualPremiums[time_iter].price)
 
@@ -867,29 +867,29 @@ def ProfitorLossforaDay(grk, pathtocreate,expectedPremiums, actualImpVs, expecte
                     p +=1
                 
                 # expected pnl>0 ,  actual pnl<0, brock+
-                elif expectedPremiums[time_iter+timeGap].premium-actualPremiums[time_iter].price  >= 0 and actualPremiums[time_iter+timeGap].price  - actualPremiums[time_iter].price  <= 0:
+                elif expectedPremiums[time_iter+timeGap].premium-actualPremiums[time_iter].price  >= 0 and actualPremiums[time_iter+timeGap].price  - actualPremiums[time_iter].price  <= 0 and actualPremiums[time_iter].delta >= -0.5 and actualPremiums[time_iter].delta <= 0.5:
                     indiv_pnl = -1*(actualPremiums[time_iter].price - actualPremiums[time_iter+timeGap].price + brockerage*actualPremiums[time_iter].price)
                     pnl += indiv_pnl
                     q+=1
                 
                 # expected pnl<0 ,  actual pnl<0, brock -
-                elif expectedPremiums[time_iter+timeGap].premium - actualPremiums[time_iter].price  <= 0 and actualPremiums[time_iter+timeGap].price  - actualPremiums[time_iter].price  <= 0:
-                    indiv_pnl = (actualPremiums[time_iter].price-actualPremiums[time_iter+timeGap].price - brockerage*actualPremiums[time_iter].price)
-                    pnl += indiv_pnl
-                    r+=1
+                # elif expectedPremiums[time_iter+timeGap].premium - actualPremiums[time_iter].price  <= 0 and actualPremiums[time_iter+timeGap].price  - actualPremiums[time_iter].price  <= 0:
+                #     indiv_pnl = (actualPremiums[time_iter].price-actualPremiums[time_iter+timeGap].price - brockerage*actualPremiums[time_iter].price)
+                #     pnl += indiv_pnl
+                #     r+=1
 
-                # expected pnl<0 ,  actual pnl>0. brock+
-                # predicted decrease, actually increases
-                elif expectedPremiums[time_iter+timeGap].premium - actualPremiums[time_iter].price  <= 0 and actualPremiums[time_iter+timeGap].price - actualPremiums[time_iter].price  >= 0:
-                    indiv_pnl =-1*(actualPremiums[time_iter+timeGap].price-actualPremiums[time_iter].price + brockerage*actualPremiums[time_iter].price)
-                    pnl += indiv_pnl
-                    s+=1
+                # # expected pnl<0 ,  actual pnl>0. brock+
+                # # predicted decrease, actually increases
+                # elif expectedPremiums[time_iter+timeGap].premium - actualPremiums[time_iter].price  <= 0 and actualPremiums[time_iter+timeGap].price - actualPremiums[time_iter].price  >= 0:
+                #     indiv_pnl =-1*(actualPremiums[time_iter+timeGap].price-actualPremiums[time_iter].price + brockerage*actualPremiums[time_iter].price)
+                #     pnl += indiv_pnl
+                #     s+=1
                 
                 # time t, actual price at t, delta at t, expected price at t + timeGap, actual at t + timeGap    
                 # rows.append([actualPremiums[time_iter].time.strftime("%d/%m/%Y, %H:%M:%S"), actualPremiums[time_iter].price,    expectedPremiums[time_iter+timeGap].premium,   actualPremiums[time_iter+timeGap].price,     actualPremiums[time_iter].delta ,      expectedValues[time_iter+timeGap].delta ,    actualPremiums[time_iter+timeGap].delta,     actualSpots[time_iter].spot ,  expectedSpots[time_iter+timeGap].spot,  actualSpots[time_iter+timeGap].spot,    expectedPremiums[time_iter+timeGap].time.strftime("%d/%m/%Y, %H:%M:%S"), indiv_pnl])
                 if(grk == "vega"):
                     rows.append([actualPremiums[time_iter].time.strftime("%d/%m/%Y, %H:%M:%S"), actualPremiums[time_iter].price,    expectedPremiums[time_iter+timeGap].premium,   actualPremiums[time_iter+timeGap].price,     actualPremiums[time_iter].vega ,       actualPremiums[time_iter+timeGap].vega,     actualImpVs[time_iter].imp_v ,   actualImpVs[time_iter+timeGap].imp_v,    expectedPremiums[time_iter+timeGap].time.strftime("%d/%m/%Y, %H:%M:%S"), indiv_pnl])
-                if(grk == "delta"):
+                if(grk == "delta" and actualPremiums[time_iter].delta >= -0.5 and actualPremiums[time_iter].delta <= 0.5):
                     rows.append([actualPremiums[time_iter].time.strftime("%d/%m/%Y, %H:%M:%S"), actualPremiums[time_iter].price,    expectedPremiums[time_iter+timeGap].premium,   actualPremiums[time_iter+timeGap].price,     actualPremiums[time_iter].delta ,       actualPremiums[time_iter+timeGap].delta,     actualSpots[time_iter].spot ,   actualSpots[time_iter+timeGap].spot,    expectedPremiums[time_iter+timeGap].time.strftime("%d/%m/%Y, %H:%M:%S"), indiv_pnl])
                 
         time_iter+=1
@@ -913,14 +913,15 @@ def ProfitorLossforaDay(grk, pathtocreate,expectedPremiums, actualImpVs, expecte
         rows[4].extend(["   ","negative:",loss_i])
         rows[6].extend(["   ","EPAP:",p])
         rows[7].extend(["   ","EPAL:",q])
-        rows[8].extend(["   ","ELAP:",s])
-        rows[9].extend(["   ","ELAL:",r])
+        # rows[8].extend(["   ","ELAP:",s])
+        # rows[9].extend(["   ","ELAL:",r])
     except:
         pass
     
     predict_good = -1
     try:
-        predict_good = (p + r)/(p+q+r+s)
+        # predict_good = (p + r)/(p+q+r+s)
+        predict_good = (p)/(p+q)
     except:
         predict_good = -1
     # if(os.path.exists(location)==False):
@@ -939,7 +940,7 @@ def ProfitorLossforaDay(grk, pathtocreate,expectedPremiums, actualImpVs, expecte
             pnl_i = rows[i][9]
             if nextPremium >= in_hand:
                 borrowed += (nextPremium  - in_hand)
-                in_hand += borrowed
+                in_hand = nextPremium
             
             # in_hand -= rows[i][1]
             in_hand += pnl_i
@@ -1001,14 +1002,14 @@ def getStrikePrices(path,optionType,year,month,day):
 #         writer = csv.writer(f)
 #         writer.writerows(rows)
 
-def csvformonth(pathtocreate, greek, dictPnL,dictHitRate,year,month,estimationType,windowSize,timeGap,optionType):
+def csvformonth(pathtocreate, greek, greek_use,dictPnL,dictHitRate,year,month,estimationType,windowSize,timeGap,optionType):
     os.chdir(pathtocreate)
     location = pathtocreate +"\\"+str(year) + "\\" + str(month)
 
     for smoothingFactor in dictPnL.keys():
         rows = []
         rows.append(['Date', 'PnL', 'Capital Required', 'Average Hit Rate', '% profit'])
-        filename = f"{smoothingFactor}_{greek}_{estimationType}_{str(windowSize)}_{str(timeGap)}_{optionType}.csv"
+        filename = f"{smoothingFactor}_{greek}_{estimationType}_{str(windowSize)}_{str(timeGap)}_{optionType}_{greek_use}.csv"
         for date in dictPnL[smoothingFactor].keys():
             row = []
             row.append(date)
@@ -1471,10 +1472,10 @@ if __name__ == "__main__":
     #----------------------------------------------------------------
     os.chdir(pathtopkl)
 
-    grk = "vega"
-    # grk = "delta"
+    # grk = "vega"
+    grk = "delta"
 
-    smoothingFactors = [0.5]
+    smoothingFactors = [0.01]
     # smoothingFactors = [0.01, 0.03, 0.3, 0.4]
     
     for year in os.listdir():
@@ -1554,6 +1555,6 @@ if __name__ == "__main__":
             except:
                 void +=1
 
-            csvformonth(pathtocreate,grk, month_pnl,hitrates_fac,year,monthtonum[month],e_type_report,w_size_report,t_gap_report,op_type_report)
+            csvformonth(pathtocreate,grk,greek_use_i, month_pnl,hitrates_fac,year,monthtonum[month],e_type_report,w_size_report,t_gap_report,op_type_report)
     
 
