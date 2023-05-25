@@ -1,2 +1,2 @@
 # OptionsTradingStrategy
- Implementation of new options trading strategy using momentum based indicators.
+ Implementation of a trading strategy for Options in Indian Stock Exchange using momentum based indicators.
