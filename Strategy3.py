@@ -760,7 +760,29 @@ def computePremiumExpectedVega(actualValues, expectedValues, expectedImpVChanges
     # print(len(expectedImpVChanges),len(actualValues),len(expectedPremiums))
     # print(expectedImpVChanges[0].time,actualValues[0].time,expectedPremiums[0].time)
     return expectedPremiums
+def computePremiumExpectedGamma(actualValues, expectedValues, expectedDeltaChanges, windowSize, timeGap, targetStrike,hourFrom, minuteFrom, secondFrom, hourTo, minuteTo, secondTo, date, month, year, estimation_type,type="now"):
+    expectedPremiums = []
 
+    timeList, lenBefore, lenAfter = getTimeList(year, month, date, hourTo, minuteTo, secondTo, hourFrom, minuteFrom, secondFrom, windowSize)
+    
+    # print(actualValues[0].time,expectedValues[timeGap].time,expectedSpotChanges[timeGap].time)
+    for i in range(len(expectedDeltaChanges)-timeGap):
+        if(i<timeGap):
+            expectedPremiums.append(prempair(actualValues[i].time, 0))
+        else:
+            if(type=="predict"):
+                expectedPremiums.append(prempair(expectedDeltaChanges[i].time, actualValues[i-timeGap].price +  ((expectedDeltaChanges[i].delta)/expectedValues[i].gamma)))
+
+            if(type=="now"):
+                # try:
+                # print(len(expectedImpVChanges), i, i-timeGap, len(actualValues))
+                expectedPremiums.append(prempair(expectedDeltaChanges[i].time, actualValues[i-timeGap].price +  (expectedDeltaChanges[i].delta/actualValues[i-timeGap].gamma)))
+                # except:
+                    # print(i, len(expectedImpVChanges), len(actualValues), i-timeGap)
+
+    # print(len(expectedImpVChanges),len(actualValues),len(expectedPremiums))
+    # print(expectedImpVChanges[0].time,actualValues[0].time,expectedPremiums[0].time)
+    return expectedPremiums
 def computeExpectedImpvChanges(actualImpvs,windowSize,timeGap,year,month,day,type):
     # SpotPrices = computeSpotsActual(year,month,day,data)
     PredictedImpVChanges = []
